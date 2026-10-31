@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum SessionStatus {
+  scheduled
+  cancelled
+}
+
+enum BookingStatus {
+  booked
+  cancelled
+}
+
+model Club {
+  id        String    @id // "club-001"
+  name      String
+  timeZone  String // "Asia/Ho_Chi_Minh"
+  createdAt DateTime // date-only in CSV → 00:00 UTC
+  players   Player[]
+  sessions  Session[]
+
+  @@map("clubs")
+}
+
+model Player {
+  id           String    @id // "p180"
+  clubId       String
+  name         String
+  joinedClubAt DateTime // date-only in CSV → 00:00 UTC
+  club         Club      @relation(fields: [clubId], references: [id])
+  bookings     Booking[]
+
+  @@index([clubId])
+  @@map("players")
+}
+
+model Session {
+  id                 String        @id // "s0001"
+  clubId             String
+  title              String
+  startsAt           DateTime // UTC
+  durationMinutes    Int
+  places             Int
+  status             SessionStatus
+  attendanceRecorded Boolean
+  club               Club          @relation(fields: [clubId], references: [id])
+  bookings           Booking[]
+
+  @@index([clubId, startsAt])
+  @@map("sessions")
+}
+
+model Booking {
+  id          String        @id // "b00001"
+  sessionId   String
+  playerId    String
+  bookedAt    DateTime // UTC
+  status      BookingStatus
+  cancelledAt DateTime? // present only when status = cancelled
+  attended    Boolean? // NULL = unknown, never coerced to false
+  session     Session       @relation(fields: [sessionId], references: [id])
+  player      Player        @relation(fields: [playerId], references: [id])
+
+  @@index([sessionId])
+  @@index([playerId])
+  @@map("bookings")
+}
