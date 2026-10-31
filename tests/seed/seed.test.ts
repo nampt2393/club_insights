@@ -62,8 +62,10 @@ test('failed seed rolls back', async () => {
   const badDir = path.join(tmpDir, 'bad-data');
   cpSync(DATA_DIR, badDir, { recursive: true });
   // Passes the mappers but violates the session foreign key, so it fails inside the transaction.
-  appendFileSync(path.join(badDir, 'bookings.csv'), 'b99999,s9999,p001,2026-01-02T18:52:45Z,booked,,\n');
-  await assert.rejects(seed(prisma, badDir));
+  // CRLF to match the source files; a bare \n would leak into `attended` and fail parsing instead.
+  appendFileSync(path.join(badDir, 'bookings.csv'), 'b99999,s9999,p001,2026-01-02T18:52:45Z,booked,,\r\n');
+  // Must be the FK error from inside the transaction, not a parse error before it.
+  await assert.rejects(seed(prisma, badDir), /Foreign key/i);
   assert.equal(await prisma.booking.count(), 1893);
   assert.equal(await prisma.club.count(), 2);
 });

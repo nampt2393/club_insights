@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:generate": "prisma generate",
     "test": "tsx --test 'tests/**/*.test.ts'",
-    "db:seed": "prisma generate && prisma migrate deploy && tsx prisma/seed/main.ts"
+    "db:seed": "prisma generate && prisma migrate deploy && tsx prisma/seed/main.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",
