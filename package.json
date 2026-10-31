@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",
-    "test": "tsx --test 'tests/**/*.test.ts'"
+    "test": "tsx --test 'tests/**/*.test.ts'",
+    "db:seed": "prisma generate && prisma migrate deploy && tsx prisma/seed/main.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",

@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Database
+
+```bash
+pnpm install
+pnpm db:seed
+```
+
+`db:seed` generates the Prisma client, applies migrations, and reloads the CSVs in `data/` into `prisma/dev.db` in one transaction. It is safe to re-run, and no `.env` is needed (set `DATABASE_URL` to use another file). Run the tests with `pnpm test`.
+
 ## Getting Started
 
 First, run the development server:
