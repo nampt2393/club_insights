@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
-import { InfoTip } from './InfoTip';
+import { InfoIcon } from './InfoIcon';
 
 type Props = { open: boolean; title: string; subtitle: string; definition: string; onClose(): void; children: ReactNode };
 
@@ -28,13 +28,14 @@ export function DrillDownDialog({ open, title, subtitle, definition, onClose, ch
       <div className="flex h-full flex-col">
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-4 sm:p-5">
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h2 id="drill-title" className="text-lg font-semibold text-slate-900">
-                {title}
-              </h2>
-              <InfoTip label={`What counts as ${title.toLowerCase()}?`} text={definition} />
-            </div>
+            <h2 id="drill-title" className="text-lg font-semibold text-slate-900">
+              {title}
+            </h2>
             <p className="text-sm text-slate-600">{subtitle}</p>
+            <p className="mt-2 flex gap-1.5 text-xs leading-relaxed text-slate-500">
+              <InfoIcon />
+              <span>{definition}</span>
+            </p>
           </div>
           <button
             type="button"
