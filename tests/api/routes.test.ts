@@ -7,7 +7,6 @@ import { setupSeededDb } from '../helpers/seeded-db';
 // so point it at a seeded temp DB before importing them.
 let cleanup: () => Promise<void>;
 let routes: {
-  clubs: typeof import('../../app/api/clubs/route');
   summary: typeof import('../../app/api/clubs/[clubId]/summary/route');
   weekly: typeof import('../../app/api/clubs/[clubId]/weekly/route');
   players: typeof import('../../app/api/clubs/[clubId]/players/route');
@@ -20,7 +19,6 @@ before(async () => {
   cleanup = s.cleanup;
   process.env.DATABASE_URL = s.url;
   routes = {
-    clubs: await import('../../app/api/clubs/route'),
     summary: await import('../../app/api/clubs/[clubId]/summary/route'),
     weekly: await import('../../app/api/clubs/[clubId]/weekly/route'),
     players: await import('../../app/api/clubs/[clubId]/players/route'),
@@ -37,11 +35,8 @@ after(async () => {
 const req = (path: string) => new NextRequest(`http://localhost${path}`);
 const ctx = (clubId: string) => ({ params: Promise.resolve({ clubId }) });
 
-test('GET clubs lists two', async () => {
-  const res = await routes.clubs.GET();
-  assert.equal(res.status, 200);
-  assert.equal((await res.json()).clubs.length, 2);
-});
+// /api/clubs calls connection(), which only works inside a real Next request; its body is
+// listClubs(), covered in service.test.ts, and `pnpm build` must list the route as dynamic (ƒ).
 
 test('GET summary 200 json', async () => {
   const res = await routes.summary.GET(req('/api/clubs/club-001/summary'), ctx('club-001'));

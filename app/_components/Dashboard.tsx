@@ -9,6 +9,7 @@ import { COPY, type MetricKey } from '../../lib/copy';
 import { formatDelta, formatRate } from '../../lib/format';
 import { presets as buildPresets } from '../../lib/ranges';
 import type { DateRange } from '../../lib/time';
+import { EmptyClubBanner } from './EmptyClubBanner';
 import { ErrorState } from './ErrorState';
 import { Header } from './Header';
 import { MetricCard } from './MetricCard';
@@ -60,6 +61,7 @@ export function Dashboard() {
         onRangeChange={(range) => navigate({ club: club.id, range })}
       />
 
+      {s && !s.hasData && <EmptyClubBanner />}
       {summary.error ? (
         <ErrorState message={summary.error.message} onRetry={() => summary.mutate()} resetHref={`/?club=${encodeURIComponent(club.id)}`} />
       ) : !s ? (
@@ -73,7 +75,7 @@ export function Dashboard() {
           <Cards s={s} onOpen={setOpen} />
         </section>
       )}
-      {!summary.error && <WeeklyChart clubId={club.id} timeZone={club.timeZone} q={q} />}
+      {!summary.error && <WeeklyChart clubId={club.id} timeZone={club.timeZone} q={q} empty={s ? !s.hasData : false} />}
       {s && (
         <DrillDownDialog
           open={open !== null}
@@ -99,6 +101,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }) {
   const { activePlayers: ap, sessionsHeld: sh, noShows: ns } = s.metrics;
+  if (!s.hasData) return <NewClubCards s={s} />;
   const hasPrev = s.previousRange !== null;
   const unknown = ns.value === null;
   return (
@@ -150,6 +153,23 @@ function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }
         }
         onOpen={() => onOpen('noShows')}
       />
+    </>
+  );
+}
+
+// A club that has never held a session: 0 sessions is a true zero; the other two can't be
+// measured yet, so they say "Not yet" and what will make them appear.
+function NewClubCards({ s }: { s: SummaryResponse }) {
+  const m = s.metrics;
+  const noop = () => {};
+  return (
+    <>
+      <MetricCard label="Active players" value={COPY.notYet} muted goodWhen="up" definition={m.activePlayers.definition}
+        extra={<span className="text-slate-500">Appears after your first session.</span>} onOpen={noop} disabled />
+      <MetricCard label="Sessions held" value={String(m.sessionsHeld.value)} goodWhen="up" definition={m.sessionsHeld.definition}
+        onOpen={noop} disabled />
+      <MetricCard label="No-shows" value={COPY.notYet} muted goodWhen="down" definition={m.noShows.definition}
+        extra={<span className="text-slate-500">Take attendance at your sessions to see this.</span>} onOpen={noop} disabled />
     </>
   );
 }
