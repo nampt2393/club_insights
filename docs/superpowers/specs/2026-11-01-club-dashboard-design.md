@@ -231,7 +231,12 @@ numbers and unknown is `null`, never `0`.
   The definition strings live next to the computations. Route handlers are thin: parse params,
   call `lib/metrics`, return JSON.
 - `app/api/...`: route handlers.
-- `app/page.tsx` + `app/_components/...`: client UI that fetches from `/api/...`.
+- `app/page.tsx` + `app/_components/...`: client UI (`"use client"`) that fetches from `/api/...`
+  with **SWR** *(decided by the user)*, using the request URL as the cache key. SWR handles
+  stale responses when the range changes quickly, caches reopened drill-downs, and provides
+  retry via `mutate()`. Don't have a server component fetch its own API, and don't use Prisma in
+  pages.
+- `lib/api-types.ts`: response types shared by the route handlers and the client.
 
 Prefer fetching all bookings/sessions for the club in the range and computing in TypeScript over
 clever SQL. The data is small and TS is easier to test and explain. *(Builder's call.)*
