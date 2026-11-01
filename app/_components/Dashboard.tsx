@@ -13,6 +13,7 @@ import { ErrorState } from './ErrorState';
 import { Header } from './Header';
 import { MetricCard } from './MetricCard';
 import { CardSkeleton, DashboardSkeleton } from './Skeleton';
+import { WeeklyChart } from './WeeklyChart';
 
 export function Dashboard() {
   const router = useRouter();
@@ -67,6 +68,7 @@ export function Dashboard() {
           <Cards s={s} onOpen={setOpen} />
         </section>
       )}
+      {!summary.error && <WeeklyChart clubId={club.id} timeZone={club.timeZone} q={q} />}
       {/* open → drill-down dialog (Task 8) */}
       <span hidden>{open}</span>
     </Shell>
