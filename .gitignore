@@ -43,3 +43,5 @@ next-env.d.ts
 # prisma
 /app/generated
 /prisma/*.db*
+
+.superpowers/
