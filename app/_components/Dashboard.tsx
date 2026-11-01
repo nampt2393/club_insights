@@ -14,6 +14,11 @@ import { Header } from './Header';
 import { MetricCard } from './MetricCard';
 import { CardSkeleton, DashboardSkeleton } from './Skeleton';
 import { WeeklyChart } from './WeeklyChart';
+import { DrillDownDialog } from './DrillDownDialog';
+import { NoShowsTable } from './NoShowsTable';
+import { PlayersTable } from './PlayersTable';
+import { SessionsTable } from './SessionsTable';
+import { formatRange } from '../../lib/format';
 
 export function Dashboard() {
   const router = useRouter();
@@ -69,11 +74,24 @@ export function Dashboard() {
         </section>
       )}
       {!summary.error && <WeeklyChart clubId={club.id} timeZone={club.timeZone} q={q} />}
-      {/* open → drill-down dialog (Task 8) */}
-      <span hidden>{open}</span>
+      {s && (
+        <DrillDownDialog
+          open={open !== null}
+          title={open ? TITLES[open] : ''}
+          subtitle={`${s.club.name} · ${formatRange(s.range)}`}
+          definition={open ? s.metrics[open].definition : ''}
+          onClose={() => setOpen(null)}
+        >
+          {open === 'activePlayers' && <PlayersTable clubId={club.id} q={q} />}
+          {open === 'sessionsHeld' && <SessionsTable clubId={club.id} timeZone={club.timeZone} q={q} />}
+          {open === 'noShows' && <NoShowsTable clubId={club.id} timeZone={club.timeZone} q={q} />}
+        </DrillDownDialog>
+      )}
     </Shell>
   );
 }
+
+const TITLES: Record<MetricKey, string> = { activePlayers: 'Active players', sessionsHeld: 'Sessions held', noShows: 'No-shows' };
 
 function Shell({ children }: { children: React.ReactNode }) {
   return <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">{children}</main>;
