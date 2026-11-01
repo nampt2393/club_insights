@@ -82,15 +82,17 @@ test('weeklySeries counts distinct players per week, clipped to range', () => {
   const outside = session('o', '2026-09-20T12:00:00Z', { bookings: [booking('b8', 'P8', null)] }); // Sun 20 Sep, before range
   const series = weeklySeries([prev, outside, a, b, c], { from: '2026-09-21', to: '2026-10-04' }, TZ, NOW);
   assert.deepEqual(series, [
-    { weekStart: '2026-09-21', weekEnd: '2026-09-27', partial: false, activePlayers: 1, sessionsHeld: 1 },
-    { weekStart: '2026-09-28', weekEnd: '2026-10-04', partial: false, activePlayers: 2, sessionsHeld: 2 },
+    // 21 Sep: attendance never taken → no-shows unknown (null), not 0
+    { weekStart: '2026-09-21', weekEnd: '2026-09-27', partial: false, activePlayers: 1, sessionsHeld: 1, noShows: null, recordedSessions: 0 },
+    { weekStart: '2026-09-28', weekEnd: '2026-10-04', partial: false, activePlayers: 2, sessionsHeld: 2, noShows: 1, recordedSessions: 1 },
   ]);
 });
 
 test('weeklySeries ignores the part of a partial week outside the range', () => {
   const series = weeklySeries([a, b], { from: '2026-09-30', to: '2026-10-04' }, TZ, NOW);
   assert.deepEqual(series, [
-    { weekStart: '2026-09-28', weekEnd: '2026-10-04', partial: true, activePlayers: 2, sessionsHeld: 1 },
+    // session a (29 Sep, the only recorded one) falls outside the clipped week → unknown
+    { weekStart: '2026-09-28', weekEnd: '2026-10-04', partial: true, activePlayers: 2, sessionsHeld: 1, noShows: null, recordedSessions: 0 },
   ]);
 });
 

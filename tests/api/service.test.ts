@@ -59,8 +59,10 @@ test('summary all-time totals', async () => {
 test('weekly last week', async () => {
   const b = (await getWeekly(db, 'club-001', {})).body as WeeklyResponse;
   assert.equal(b.weeks.length, 4);
-  assert.deepEqual(b.weeks[3], { weekStart: '2026-09-28', weekEnd: '2026-10-04', partial: false, activePlayers: 44, sessionsHeld: 5 });
+  assert.deepEqual(b.weeks[3], { weekStart: '2026-09-28', weekEnd: '2026-10-04', partial: false, activePlayers: 44, sessionsHeld: 5, noShows: 2, recordedSessions: 2 });
   assert.equal(b.weeks[2].activePlayers, 45);
+  // per-week no-shows (from the CSV: 2, 5, 6, 2) add up to the card's 15
+  assert.deepEqual(b.weeks.map((w) => w.noShows), [2, 5, 6, 2]);
 });
 
 test('players drill-down count matches card', async () => {

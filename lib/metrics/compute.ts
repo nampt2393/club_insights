@@ -49,6 +49,8 @@ export type WeekPoint = {
   partial: boolean;
   activePlayers: number;
   sessionsHeld: number;
+  noShows: number | null; // null = attendance not taken at any session this week
+  recordedSessions: number;
 };
 
 export function weeklySeries(sessions: SessionRow[], r: DateRange, timeZone: string, now: Date): WeekPoint[] {
@@ -59,7 +61,7 @@ export function weeklySeries(sessions: SessionRow[], r: DateRange, timeZone: str
       to: week.weekEnd > r.to ? r.to : week.weekEnd,
     };
     const m = computeMetrics(sessions, rangeWindow(clipped, timeZone), now);
-    return { ...week, activePlayers: m.activePlayers, sessionsHeld: m.sessionsHeld };
+    return { ...week, activePlayers: m.activePlayers, sessionsHeld: m.sessionsHeld, noShows: m.noShows, recordedSessions: m.recordedSessions };
   });
 }
 

@@ -54,7 +54,7 @@ for a newer club). Each response carries `range`, `previousRange` (or `null`) an
 |---|---|
 | `/api/clubs` | `{ clubs: [{ id, name, timeZone, createdAt }], now }` |
 | `/api/clubs/:clubId/summary` | the three metrics: `{ value, previous, definition }` each, plus `sessionsHeld.cancelled` and the no-show coverage/rate fields, `hasData` |
-| `/api/clubs/:clubId/weekly` | `weeks: [{ weekStart, weekEnd, partial, activePlayers, sessionsHeld }]` |
+| `/api/clubs/:clubId/weekly` | `weeks: [{ weekStart, weekEnd, partial, activePlayers, sessionsHeld, noShows, recordedSessions }]` (`noShows` is `null` for a week with no attendance taken) |
 | `/api/clubs/:clubId/players` | active players: `{ playerId, name, sessionsPlayed, lastPlayed }` |
 | `/api/clubs/:clubId/sessions` | `held` and `cancelled` sessions with booked/places and absences (`null` = not taken) |
 | `/api/clubs/:clubId/no-shows` | players with ≥1 no-show and the sessions they missed |
