@@ -3,7 +3,7 @@
 
 export const DEFINITIONS = {
   activePlayers:
-    "Players with at least one booking (not cancelled) at a session held in this period. Players marked absent don't count.",
+    "Players with at least one booking (not cancelled) at a session held in this period. A booking marked absent doesn't count as playing.",
   sessionsHeld: "Sessions that took place in this period. Cancelled sessions aren't counted.",
   noShows:
     'Bookings marked absent. Only sessions where attendance was taken count; for the others, no-shows are unknown.',

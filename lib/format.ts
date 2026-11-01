@@ -62,3 +62,17 @@ export function formatDelta(current: number | null, previous: number | null): De
 export function formatRate(rate: number | null): string {
   return rate === null ? 'Unknown' : `${Math.round(rate * 100)}%`;
 }
+
+/** X-axis label: the week containing "today" reads 'This week' so a low, unfinished week isn't mistaken for a drop. */
+export function weekTickLabel(weekStart: LocalDate, thisMonday: LocalDate): string {
+  return weekStart === thisMonday ? 'This week' : formatShortDay(weekStart);
+}
+
+/**
+ * Colour of a change badge. A change is only called good or bad when the two periods are
+ * comparable — e.g. a no-show count isn't when attendance was taken at a different number of sessions.
+ */
+export function deltaTone(direction: Delta['direction'], goodWhen: 'up' | 'down', comparable: boolean): 'good' | 'bad' | 'neutral' {
+  if (!comparable || direction === 'flat' || direction === 'none') return 'neutral';
+  return direction === goodWhen ? 'good' : 'bad';
+}

@@ -4,7 +4,9 @@ import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis
 import type { WeekPoint } from '../../lib/api-types';
 import { useWeekly } from '../../lib/client/api';
 import { COPY } from '../../lib/copy';
-import { formatRange, formatShortDay, formatWeek } from '../../lib/format';
+import { formatRange, formatWeek, weekTickLabel } from '../../lib/format';
+import { todayLocal } from '../../lib/clock';
+import { mondayOf } from '../../lib/time';
 import type { DateRange } from '../../lib/time';
 
 const FULL = '#4f46e5'; // indigo-600
@@ -21,6 +23,7 @@ type Props = { clubId: string; timeZone: string; q: Partial<DateRange>; empty?: 
 export function WeeklyChart({ clubId, timeZone, q, empty }: Props) {
   const weekly = useWeekly(clubId, q);
   const data = weekly.data;
+  const thisMonday = mondayOf(todayLocal(timeZone));
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5" aria-labelledby="weekly-title">
@@ -43,7 +46,7 @@ export function WeeklyChart({ clubId, timeZone, q, empty }: Props) {
                 <CartesianGrid vertical={false} stroke="#e2e8f0" />
                 <XAxis
                   dataKey="weekStart"
-                  tickFormatter={formatShortDay}
+                  tickFormatter={(d: string) => weekTickLabel(d, thisMonday)}
                   tick={{ fontSize: 12, fill: '#64748b' }}
                   tickLine={false}
                   axisLine={{ stroke: '#cbd5e1' }}
@@ -51,8 +54,9 @@ export function WeeklyChart({ clubId, timeZone, q, empty }: Props) {
                   minTickGap={12}
                 />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#64748b' }} tickLine={false} axisLine={false} width={40} />
-                <Tooltip cursor={{ fill: '#eef2ff' }} content={<WeekTooltip range={data.range} />} />
-                <Bar dataKey="activePlayers" radius={[4, 4, 0, 0]} maxBarSize={48} isAnimationActive={false}>
+                <Tooltip cursor={{ fill: '#eef2ff' }} content={<WeekTooltip range={data.range} thisMonday={thisMonday} />} />
+                {/* minPointSize keeps 0-player weeks visible as a sliver, so a true zero isn't mistaken for missing data */}
+                <Bar dataKey="activePlayers" radius={[4, 4, 0, 0]} maxBarSize={48} minPointSize={3} isAnimationActive={false}>
                   {data.weeks.map((w) => (
                     <Cell key={w.weekStart} fill={w.partial ? PARTIAL : FULL} stroke={w.partial ? FULL : undefined} strokeDasharray={w.partial ? '3 3' : undefined} />
                   ))}
@@ -88,9 +92,9 @@ function Legend({ color, label, dashed }: { color: string; label: string; dashed
   );
 }
 
-type TooltipProps = { active?: boolean; payload?: { payload: WeekPoint }[]; range: DateRange };
+type TooltipProps = { active?: boolean; payload?: { payload: WeekPoint }[]; range: DateRange; thisMonday: string };
 
-function WeekTooltip({ active, payload, range }: TooltipProps) {
+function WeekTooltip({ active, payload, range, thisMonday }: TooltipProps) {
   const w = active && payload?.[0]?.payload;
   if (!w) return null;
   const clipped = {
@@ -107,6 +111,7 @@ function WeekTooltip({ active, payload, range }: TooltipProps) {
         <strong className="tabular-nums">{w.sessionsHeld}</strong> sessions held
       </p>
       {w.partial && <p className="mt-1 text-amber-700">Partial week: only {formatRange(clipped)} in this period</p>}
+      {w.weekStart === thisMonday && <p className="text-slate-500">Week in progress: counts so far</p>}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import type { SummaryResponse } from '../../lib/api-types';
 import { useClubs, useSummary } from '../../lib/client/api';
+import { pickClub } from '../../lib/client/club';
 import { todayLocal } from '../../lib/clock';
 import { COPY, type MetricKey } from '../../lib/copy';
 import { formatDelta, formatRate } from '../../lib/format';
@@ -30,7 +31,8 @@ export function Dashboard() {
 
   // Club and range live in the URL. A missing or unknown club falls back to the first one; a
   // missing range lets the API choose its default, which we then display.
-  const club = clubs.data?.clubs.find((c) => c.id === params.get('club')) ?? clubs.data?.clubs[0];
+  const picked = clubs.data ? pickClub(clubs.data.clubs, params.get('club')) : undefined;
+  const club = picked && 'club' in picked ? picked.club : undefined;
   const q = { from: params.get('from') ?? undefined, to: params.get('to') ?? undefined };
   const summary = useSummary(club?.id, q);
 
@@ -44,6 +46,12 @@ export function Dashboard() {
   }
 
   if (clubs.error) return <Shell><ErrorState message={clubs.error.message} onRetry={() => clubs.mutate()} resetHref="/" /></Shell>;
+  if (picked && 'notFound' in picked)
+    return (
+      <Shell>
+        <ErrorState message={`There's no club with the id “${picked.notFound}”. The link may be out of date.`} onRetry={() => clubs.mutate()} resetHref="/" />
+      </Shell>
+    );
   if (!club) return <DashboardSkeleton />;
 
   const today = todayLocal(club.timeZone);
@@ -104,6 +112,7 @@ function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }
   if (!s.hasData) return <NewClubCards s={s} />;
   const hasPrev = s.previousRange !== null;
   const unknown = ns.value === null;
+  const sameCoverage = ns.recordedSessions === ns.previousRecordedSessions;
   return (
     <>
       <MetricCard
@@ -129,6 +138,8 @@ function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }
         muted={unknown}
         delta={hasPrev && !unknown ? formatDelta(ns.value, ns.previous) : undefined}
         goodWhen="down"
+        comparable={sameCoverage}
+        deltaNote={sameCoverage ? undefined : 'Not a like-for-like change: attendance was taken at a different number of sessions. Compare the rate.'}
         definition={ns.definition}
         extra={
           <>

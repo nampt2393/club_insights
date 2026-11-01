@@ -29,7 +29,7 @@ within the period (club-local dates, inclusive), and have already started.
 
 | Number | Definition (as shown on screen, from `lib/copy.ts`) |
 |---|---|
-| Active players | Players with at least one booking (not cancelled) at a session held in this period. Players marked absent don't count. |
+| Active players | Players with at least one booking (not cancelled) at a session held in this period. A booking marked absent doesn't count as playing. |
 | Sessions held | Sessions that took place in this period. Cancelled sessions aren't counted. |
 | No-shows | Bookings marked absent. Only sessions where attendance was taken count; for the others, no-shows are unknown. |
 

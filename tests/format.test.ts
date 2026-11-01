@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { apiUrl } from '../lib/client/url';
-import { formatDelta, formatLocalDate, formatRange, formatRate, formatSessionTime, formatWeek } from '../lib/format';
+import { deltaTone, formatDelta, formatLocalDate, formatRange, formatRate, formatSessionTime, formatWeek, weekTickLabel } from '../lib/format';
 
 test('formatDelta up with pct', () => assert.deepEqual(formatDelta(89, 88), { text: '▲ +1 (1%)', direction: 'up' }));
 test('formatDelta down with pct', () => assert.deepEqual(formatDelta(15, 20), { text: '▼ −5 (25%)', direction: 'down' }));
@@ -25,3 +25,14 @@ test('formatLocalDate', () => assert.equal(formatLocalDate('2026-10-01'), '1 Oct
 test('apiUrl omits empty', () => assert.equal(apiUrl('/api/clubs/club-001/summary', {}), '/api/clubs/club-001/summary'));
 test('apiUrl adds range', () =>
   assert.equal(apiUrl('/api/clubs/club-001/summary', { from: '2026-09-07', to: '2026-10-04' }), '/api/clubs/club-001/summary?from=2026-09-07&to=2026-10-04'));
+
+test('weekTickLabel marks the current week', () => {
+  assert.equal(weekTickLabel('2026-10-05', '2026-10-05'), 'This week');
+  assert.equal(weekTickLabel('2026-09-28', '2026-10-05'), '28 Sep');
+});
+test('deltaTone colours only comparable changes', () => {
+  assert.equal(deltaTone('down', 'down', true), 'good');
+  assert.equal(deltaTone('up', 'down', true), 'bad');
+  assert.equal(deltaTone('down', 'down', false), 'neutral');
+  assert.equal(deltaTone('flat', 'up', true), 'neutral');
+});
