@@ -14,7 +14,6 @@ import type {
   WeeklyResponse,
 } from '../api-types';
 import { NOW, todayLocal } from '../clock';
-import { DEFINITIONS } from '../copy';
 import {
   activePlayerRows,
   computeMetrics,
@@ -95,23 +94,13 @@ export async function getSummary(db: PrismaClient, clubId: string, q: RangeQuery
       club: ctx.club,
       hasData: heldEver > 0,
       metrics: {
-        activePlayers: { value: cur.activePlayers, previous: prev?.activePlayers ?? null, definition: DEFINITIONS.activePlayers },
-        sessionsHeld: {
-          value: cur.sessionsHeld,
-          previous: prev?.sessionsHeld ?? null,
-          definition: DEFINITIONS.sessionsHeld,
-          cancelled: cur.cancelledSessions,
-        },
+        activePlayers: { value: cur.activePlayers, previous: prev?.activePlayers ?? null },
+        sessionsHeld: { value: cur.sessionsHeld, previous: prev?.sessionsHeld ?? null, cancelled: cur.cancelledSessions },
         noShows: {
           value: cur.noShows,
           previous: prev?.noShows ?? null,
-          definition: DEFINITIONS.noShows,
           recordedSessions: cur.recordedSessions,
-          totalSessions: cur.sessionsHeld,
-          rate: cur.noShowRate,
           previousRecordedSessions: prev?.recordedSessions ?? null,
-          previousTotalSessions: prev?.sessionsHeld ?? null,
-          previousRate: prev?.noShowRate ?? null,
         },
       },
     },

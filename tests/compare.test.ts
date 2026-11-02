@@ -4,16 +4,11 @@ import { comparisonRows } from '../lib/compare';
 import type { SummaryResponse } from '../lib/api-types';
 
 type M = SummaryResponse['metrics'];
-const def = 'd';
 // club-001, last 4 weeks (anchors from tests/api/service.test.ts)
 const metrics: M = {
-  activePlayers: { value: 89, previous: 88, definition: def },
-  sessionsHeld: { value: 20, previous: 20, definition: def, cancelled: 0 },
-  noShows: {
-    value: 15, previous: 14, definition: def,
-    recordedSessions: 11, totalSessions: 20, rate: 15 / 151,
-    previousRecordedSessions: 12, previousTotalSessions: 20, previousRate: 14 / 160,
-  },
+  activePlayers: { value: 89, previous: 88 },
+  sessionsHeld: { value: 20, previous: 20, cancelled: 0 },
+  noShows: { value: 15, previous: 14, recordedSessions: 11, previousRecordedSessions: 12 },
 };
 
 test('rows come in the order active players, no-shows, sessions held', () =>
@@ -33,7 +28,7 @@ test('fewer no-shows with the same coverage is good', () => {
 });
 
 test('unknown no-shows stay null, never 0', () => {
-  const ns = comparisonRows({ ...metrics, noShows: { ...metrics.noShows, previous: null, previousRecordedSessions: 0, previousRate: null } })[1];
+  const ns = comparisonRows({ ...metrics, noShows: { ...metrics.noShows, previous: null, previousRecordedSessions: 0 } })[1];
   assert.equal(ns.previous, null);
   assert.equal(ns.change, '—');
   assert.equal(ns.tone, 'neutral');

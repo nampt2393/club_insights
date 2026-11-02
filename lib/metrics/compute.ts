@@ -20,15 +20,12 @@ export type MetricValues = {
   cancelledSessions: number;
   noShows: number | null; // null = no session in the window had attendance taken
   recordedSessions: number;
-  bookingsAtRecorded: number;
-  noShowRate: number | null; // fraction 0–1
 };
 
 export function computeMetrics(sessions: SessionRow[], w: Window, now: Date): MetricValues {
   const held = sessions.filter((s) => isHeld(s, w, now));
   const recorded = held.filter((s) => s.attendanceRecorded);
   const players = new Set(held.flatMap((s) => s.bookings.filter(played).map((b) => b.playerId)));
-  const bookingsAtRecorded = recorded.reduce((n, s) => n + activeBookings(s).length, 0);
   const noShows = recorded.reduce((n, s) => n + s.bookings.filter(absent).length, 0);
   const known = recorded.length > 0;
   return {
@@ -38,8 +35,6 @@ export function computeMetrics(sessions: SessionRow[], w: Window, now: Date): Me
       .length,
     noShows: known ? noShows : null,
     recordedSessions: recorded.length,
-    bookingsAtRecorded,
-    noShowRate: bookingsAtRecorded > 0 ? noShows / bookingsAtRecorded : null, // no bookings → no rate
   };
 }
 

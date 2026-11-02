@@ -7,7 +7,7 @@ import { useClubs, useSummary } from '../../lib/client/api';
 import { pickClub } from '../../lib/client/club';
 import { requestedRange } from '../../lib/client/range';
 import { todayLocal } from '../../lib/clock';
-import { COPY, type MetricKey } from '../../lib/copy';
+import { COPY, DEFINITIONS, type MetricKey } from '../../lib/copy';
 import { ComparisonCard } from './ComparisonCard';
 import { presets as buildPresets } from '../../lib/ranges';
 import type { DateRange } from '../../lib/time';
@@ -89,7 +89,7 @@ export function Dashboard() {
           open={open !== null}
           title={open ? TITLES[open] : ''}
           subtitle={`${s.club.name} · ${formatRange(range)}`}
-          definition={open ? s.metrics[open].definition : ''}
+          definition={open ? DEFINITIONS[open] : ''}
           onClose={() => setOpen(null)}
         >
           {open === 'activePlayers' && <PlayersTable clubId={club.id} q={q} />}
@@ -113,17 +113,17 @@ function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }
   const unknown = ns.value === null;
   return (
     <>
-      <MetricRow label="Active players" definition={ap.definition} value={String(ap.value)} onOpen={() => onOpen('activePlayers')} />
+      <MetricRow label="Active players" definition={DEFINITIONS.activePlayers} value={String(ap.value)} onOpen={() => onOpen('activePlayers')} />
       <MetricRow
         label="Sessions held"
-        definition={sh.definition}
+        definition={DEFINITIONS.sessionsHeld}
         value={String(sh.value)}
         note={sh.cancelled > 0 && `+ ${sh.cancelled} cancelled, not counted`}
         onOpen={() => onOpen('sessionsHeld')}
       />
       <MetricRow
         label="No-shows"
-        definition={ns.definition}
+        definition={DEFINITIONS.noShows}
         value={unknown ? COPY.unknown : String(ns.value)}
         muted={unknown}
         onOpen={() => onOpen('noShows')}
@@ -138,9 +138,9 @@ function NewClubCards({ s }: { s: SummaryResponse }) {
   const m = s.metrics;
   return (
     <>
-      <MetricRow label="Active players" definition={m.activePlayers.definition} value={COPY.notYet} muted note="Appears after your first session." />
-      <MetricRow label="Sessions held" definition={m.sessionsHeld.definition} value={String(m.sessionsHeld.value)} />
-      <MetricRow label="No-shows" definition={m.noShows.definition} value={COPY.notYet} muted note="Take attendance at your sessions to see this." />
+      <MetricRow label="Active players" definition={DEFINITIONS.activePlayers} value={COPY.notYet} muted note="Appears after your first session." />
+      <MetricRow label="Sessions held" definition={DEFINITIONS.sessionsHeld} value={String(m.sessionsHeld.value)} />
+      <MetricRow label="No-shows" definition={DEFINITIONS.noShows} value={COPY.notYet} muted note="Take attendance at your sessions to see this." />
     </>
   );
 }

@@ -55,14 +55,11 @@ test('computeMetrics on fixture', () =>
     cancelledSessions: 1,
     noShows: 1,
     recordedSessions: 1,
-    bookingsAtRecorded: 2,
-    noShowRate: 0.5,
   }));
 
 test('noShows is null when nothing recorded', () => {
   const m = computeMetrics([b], w, NOW);
   assert.equal(m.noShows, null);
-  assert.equal(m.noShowRate, null);
   assert.equal(m.recordedSessions, 0);
   assert.equal(m.sessionsHeld, 1);
 });

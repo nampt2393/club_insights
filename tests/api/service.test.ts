@@ -9,7 +9,6 @@ import type {
   SummaryResponse,
   WeeklyResponse,
 } from '../../lib/api-types';
-import { DEFINITIONS } from '../../lib/copy';
 import { setupSeededDb } from '../helpers/seeded-db';
 
 // Anchor values were computed independently from data/*.csv.
@@ -28,23 +27,15 @@ test('summary club-001 last 4 weeks', async () => {
   const b = r.body as SummaryResponse;
   assert.ok(!('range' in b)); // the client sent it
   assert.deepEqual(b.previousRange, { from: '2026-08-10', to: '2026-09-06' });
-  assert.equal(b.metrics.activePlayers.value, 89);
-  assert.equal(b.metrics.activePlayers.previous, 88);
-  assert.equal(b.metrics.sessionsHeld.value, 20);
-  assert.equal(b.metrics.sessionsHeld.previous, 20);
-  assert.equal(b.metrics.sessionsHeld.cancelled, 0);
-  assert.equal(b.metrics.noShows.value, 15);
-  assert.equal(b.metrics.noShows.previous, 14);
-  assert.equal(b.metrics.noShows.recordedSessions, 11);
-  assert.equal(b.metrics.noShows.totalSessions, 20);
-  assert.equal(b.metrics.noShows.previousRecordedSessions, 12);
-  assert.equal(b.metrics.noShows.previousTotalSessions, 20);
-  assert.equal(b.metrics.noShows.rate, 15 / 151);
-  assert.equal(b.metrics.noShows.previousRate, 14 / 152);
+  // Exactly what the dashboard reads: no definitions (lib/copy.ts has them), no no-show rate.
+  assert.deepEqual(b.metrics, {
+    activePlayers: { value: 89, previous: 88 },
+    sessionsHeld: { value: 20, previous: 20, cancelled: 0 },
+    noShows: { value: 15, previous: 14, recordedSessions: 11, previousRecordedSessions: 12 },
+  });
   assert.equal(b.hasData, true);
   assert.ok(!('now' in b));
   assert.equal(b.club.name, 'Saigon Smash Pickleball');
-  assert.equal(b.metrics.activePlayers.definition, DEFINITIONS.activePlayers);
 });
 
 test('summary all-time totals', async () => {

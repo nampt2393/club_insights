@@ -1,5 +1,5 @@
-// Every host-facing string in one place. The API returns DEFINITIONS so web and mobile print the
-// same words, and README.md repeats them. Change a definition here and in the code that computes it.
+// Every host-facing string in one place. The API doesn't carry DEFINITIONS: web prints them from
+// here, mobile copies them (README.md repeats them). Change a definition here and in the code that computes it.
 
 export const DEFINITIONS = {
   activePlayers:

@@ -33,10 +33,10 @@ within the period (club-local dates, inclusive), and have already started.
 | Sessions held | Sessions that took place in this period. Cancelled sessions aren't counted. |
 | No-shows | Bookings marked absent. Only sessions where attendance was taken count; for the others, no-shows are unknown. |
 
-- Attendance was only taken at some sessions. No-shows count those sessions only, and the screen always
-  says how many ("attendance taken at 11 of 20 sessions"). If none were recorded, the value is
-  **Unknown** (`null` in the API), never 0. The **no-show rate** (no-shows ÷ bookings at recorded
-  sessions) is shown too, because it stays comparable when coverage differs between periods.
+- Attendance was only taken at some sessions. No-shows count those sessions only; the no-shows
+  details say how many ("attendance taken at 11 of 20 sessions"). If none were recorded, the value is
+  **Unknown** (`null` in the API), never 0. When attendance was taken at a different number of
+  sessions than in the previous period, the no-shows change isn't marked good or bad.
 - The **previous period** has the same number of days, immediately before the chosen one. If the club
   didn't exist yet, there is no comparison, and the screen says why.
 - **Weeks** run Monday–Sunday in the club's time zone (`clubs.time_zone`). A week cut by the period's
@@ -50,12 +50,12 @@ All endpoints are `GET` and return JSON. Every endpoint except `/api/clubs` requ
 as club-local `YYYY-MM-DD`; responses don't echo them back. The client picks the default range
 itself: the last 4 complete weeks, or club creation → today for a newer club (`defaultRange` in
 `lib/ranges.ts`). Only `summary` says anything more about ranges: `previousRange` (or `null`) and
-`previousClipped`, the comparison period the server worked out. The definitions are only in `summary`.
+`previousClipped`, the comparison period the server worked out. Definitions aren't in the API: they're the table above (`lib/copy.ts`).
 
 | Endpoint | Returns |
 |---|---|
 | `/api/clubs` | `{ clubs: [{ id, name, timeZone, createdAt }] }` |
-| `/api/clubs/:clubId/summary` | the three metrics: `{ value, previous, definition }` each, plus `sessionsHeld.cancelled` and the no-show coverage/rate fields, `hasData` |
+| `/api/clubs/:clubId/summary` | `club`, `hasData`, and the three metrics as `{ value, previous }`, plus `sessionsHeld.cancelled` and `noShows.recordedSessions` / `previousRecordedSessions` |
 | `/api/clubs/:clubId/weekly` | `weeks: [{ weekStart, weekEnd, partial, activePlayers, sessionsHeld, noShows, recordedSessions }]` (`noShows` is `null` for a week with no attendance taken) |
 | `/api/clubs/:clubId/players` | active players: `{ playerId, name, sessionsPlayed, lastPlayed }` |
 | `/api/clubs/:clubId/sessions` | `held` and `cancelled` sessions with booked/places and absences (`null` = not taken) |

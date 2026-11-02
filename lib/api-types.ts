@@ -17,7 +17,8 @@ export type PreviousPeriod = {
 };
 export type RangeInfo = { range: DateRange } & PreviousPeriod;
 
-export type Metric = { value: number | null; previous: number | null; definition: string };
+// Definitions aren't in the API: clients print them from lib/copy.ts (README.md has the same words).
+export type Metric = { value: number | null; previous: number | null };
 
 export type SummaryResponse = PreviousPeriod & {
   club: ClubDto;
@@ -25,14 +26,8 @@ export type SummaryResponse = PreviousPeriod & {
   metrics: {
     activePlayers: Metric;
     sessionsHeld: Metric & { cancelled: number };
-    noShows: Metric & {
-      recordedSessions: number;
-      totalSessions: number;
-      rate: number | null;
-      previousRecordedSessions: number | null;
-      previousTotalSessions: number | null;
-      previousRate: number | null;
-    };
+    // Sessions with attendance taken: no-show counts only compare when these match.
+    noShows: Metric & { recordedSessions: number; previousRecordedSessions: number | null };
   };
 };
 
