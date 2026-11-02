@@ -21,17 +21,20 @@ type Props = {
 const TONE = { good: 'bg-emerald-50 text-emerald-700', bad: 'bg-rose-50 text-rose-700', neutral: 'bg-slate-100 text-slate-600' };
 
 export function MetricCard({ label, value, muted, delta, goodWhen, comparable = true, deltaNote, definition, extra, onOpen, disabled }: Props) {
+  // Only "See details" opens the drill-down; the rest of the card is plain content.
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      disabled={disabled}
-      className="group flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition enabled:hover:border-indigo-300 enabled:hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 disabled:cursor-default"
-    >
+    <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <span className="flex items-center justify-between gap-2 text-sm font-medium text-slate-600">
         {label}
         {!disabled && (
-          <span className="text-xs font-normal text-indigo-600 opacity-70 group-hover:opacity-100">See details →</span>
+          <button
+            type="button"
+            onClick={onOpen}
+            aria-label={`See details: ${label}`}
+            className="-m-1 rounded p-1 text-xs font-normal text-indigo-600 hover:text-indigo-800 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          >
+            See details →
+          </button>
         )}
       </span>
       <span className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -49,6 +52,6 @@ export function MetricCard({ label, value, muted, delta, goodWhen, comparable = 
         <InfoIcon />
         <span>{definition}</span>
       </span>
-    </button>
+    </div>
   );
 }
