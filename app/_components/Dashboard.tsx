@@ -13,8 +13,8 @@ import type { DateRange } from '../../lib/time';
 import { EmptyClubBanner } from './EmptyClubBanner';
 import { ErrorState } from './ErrorState';
 import { Header } from './Header';
-import { MetricCard } from './MetricCard';
-import { CardSkeleton, DashboardSkeleton } from './Skeleton';
+import { MetricList, MetricListSkeleton, MetricRow } from './MetricList';
+import { DashboardSkeleton } from './Skeleton';
 import { WeeklyChart } from './WeeklyChart';
 import { DrillDownDialog } from './DrillDownDialog';
 import { NoShowsTable } from './NoShowsTable';
@@ -73,15 +73,11 @@ export function Dashboard() {
       {summary.error ? (
         <ErrorState message={summary.error.message} onRetry={() => summary.mutate()} resetHref={`/?club=${encodeURIComponent(club.id)}`} />
       ) : !s ? (
-        <div className="grid gap-4 md:grid-cols-3">
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-        </div>
+        <MetricListSkeleton />
       ) : (
-        <section aria-label="Key numbers" className={`grid gap-4 md:grid-cols-3 ${summary.isValidating ? 'opacity-70' : ''}`}>
+        <MetricList dimmed={summary.isValidating}>
           <Cards s={s} onOpen={setOpen} />
-        </section>
+        </MetricList>
       )}
       {s && s.hasData && <ComparisonCard s={s} />}
       {!summary.error && <WeeklyChart clubId={club.id} timeZone={club.timeZone} q={q} empty={s ? !s.hasData : false} />}
@@ -114,24 +110,19 @@ function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }
   const unknown = ns.value === null;
   return (
     <>
-      <MetricCard
-        label="Active players"
-        value={String(ap.value)}
-        definition={ap.definition}
-        onOpen={() => onOpen('activePlayers')}
-      />
-      <MetricCard
+      <MetricRow label="Active players" definition={ap.definition} value={String(ap.value)} onOpen={() => onOpen('activePlayers')} />
+      <MetricRow
         label="Sessions held"
-        value={String(sh.value)}
         definition={sh.definition}
-        extra={sh.cancelled > 0 && <span className="text-slate-500">+ {sh.cancelled} cancelled, not counted</span>}
+        value={String(sh.value)}
+        note={sh.cancelled > 0 && `+ ${sh.cancelled} cancelled, not counted`}
         onOpen={() => onOpen('sessionsHeld')}
       />
-      <MetricCard
+      <MetricRow
         label="No-shows"
+        definition={ns.definition}
         value={unknown ? COPY.unknown : String(ns.value)}
         muted={unknown}
-        definition={ns.definition}
         onOpen={() => onOpen('noShows')}
       />
     </>
@@ -139,18 +130,14 @@ function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }
 }
 
 // A club that has never held a session: 0 sessions is a true zero; the other two can't be
-// measured yet, so they say "Not yet" and what will make them appear.
+// measured yet, so they say "Not yet" and what will make them appear. Nothing to drill into.
 function NewClubCards({ s }: { s: SummaryResponse }) {
   const m = s.metrics;
-  const noop = () => {};
   return (
     <>
-      <MetricCard label="Active players" value={COPY.notYet} muted definition={m.activePlayers.definition}
-        extra={<span className="text-slate-500">Appears after your first session.</span>} onOpen={noop} disabled />
-      <MetricCard label="Sessions held" value={String(m.sessionsHeld.value)} definition={m.sessionsHeld.definition}
-        onOpen={noop} disabled />
-      <MetricCard label="No-shows" value={COPY.notYet} muted definition={m.noShows.definition}
-        extra={<span className="text-slate-500">Take attendance at your sessions to see this.</span>} onOpen={noop} disabled />
+      <MetricRow label="Active players" definition={m.activePlayers.definition} value={COPY.notYet} muted note="Appears after your first session." />
+      <MetricRow label="Sessions held" definition={m.sessionsHeld.definition} value={String(m.sessionsHeld.value)} />
+      <MetricRow label="No-shows" definition={m.noShows.definition} value={COPY.notYet} muted note="Take attendance at your sessions to see this." />
     </>
   );
 }
