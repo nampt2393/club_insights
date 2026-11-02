@@ -33,14 +33,19 @@ const clubPath = (clubId: string, what: string) => `/api/clubs/${encodeURICompon
 const key = (clubId: string | undefined, what: string, q: Q, enabled = true) =>
   clubId && enabled ? apiUrl(clubPath(clubId, what), q) : null;
 
-export const useClubs = () => useSWR<ClubsResponse, ApiRequestError>('/api/clubs', fetcher);
+// The data is fixed at NOW, so refetching when the window regains focus only repeats requests.
+// Revalidating on reconnect stays on: it retries a request that failed while offline.
+const base = { revalidateOnFocus: false };
+const kept = { ...base, keepPreviousData: true };
+
+export const useClubs = () => useSWR<ClubsResponse, ApiRequestError>('/api/clubs', fetcher, base);
 export const useSummary = (clubId: string | undefined, q: Q) =>
-  useSWR<SummaryResponse, ApiRequestError>(key(clubId, 'summary', q), fetcher, { keepPreviousData: true });
+  useSWR<SummaryResponse, ApiRequestError>(key(clubId, 'summary', q), fetcher, kept);
 export const useWeekly = (clubId: string | undefined, q: Q) =>
-  useSWR<WeeklyResponse, ApiRequestError>(key(clubId, 'weekly', q), fetcher, { keepPreviousData: true });
+  useSWR<WeeklyResponse, ApiRequestError>(key(clubId, 'weekly', q), fetcher, kept);
 export const usePlayers = (clubId: string | undefined, q: Q, enabled: boolean) =>
-  useSWR<PlayersResponse, ApiRequestError>(key(clubId, 'players', q, enabled), fetcher);
+  useSWR<PlayersResponse, ApiRequestError>(key(clubId, 'players', q, enabled), fetcher, base);
 export const useSessions = (clubId: string | undefined, q: Q, enabled: boolean) =>
-  useSWR<SessionsResponse, ApiRequestError>(key(clubId, 'sessions', q, enabled), fetcher);
+  useSWR<SessionsResponse, ApiRequestError>(key(clubId, 'sessions', q, enabled), fetcher, base);
 export const useNoShows = (clubId: string | undefined, q: Q, enabled: boolean) =>
-  useSWR<NoShowsResponse, ApiRequestError>(key(clubId, 'no-shows', q, enabled), fetcher);
+  useSWR<NoShowsResponse, ApiRequestError>(key(clubId, 'no-shows', q, enabled), fetcher, base);
