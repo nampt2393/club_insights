@@ -7,7 +7,7 @@ import type { DateRange, LocalDate } from './time';
 export type { ActivePlayerRow, NoShowRow, SessionListItem, WeekPoint, DateRange, LocalDate };
 
 export type ClubDto = { id: string; name: string; timeZone: string; createdAt: LocalDate };
-export type ClubsResponse = { clubs: ClubDto[]; now: string };
+export type ClubsResponse = { clubs: ClubDto[] };
 
 export type RangeInfo = {
   range: DateRange;
@@ -19,7 +19,6 @@ export type Metric = { value: number | null; previous: number | null; definition
 
 export type SummaryResponse = RangeInfo & {
   club: ClubDto;
-  now: string;
   hasData: boolean; // false when the club has never held a session
   metrics: {
     activePlayers: Metric;

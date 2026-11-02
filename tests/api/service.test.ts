@@ -39,7 +39,7 @@ test('summary club-001 default range', async () => {
   assert.equal(b.metrics.noShows.rate, 15 / 151);
   assert.equal(b.metrics.noShows.previousRate, 14 / 152);
   assert.equal(b.hasData, true);
-  assert.equal(b.now, '2026-10-05T02:00:00.000Z');
+  assert.ok(!('now' in b));
   assert.equal(b.club.name, 'Saigon Smash Pickleball');
   assert.equal(b.metrics.activePlayers.definition, DEFINITIONS.activePlayers);
 });
@@ -121,5 +121,5 @@ test('listClubs', async () => {
   const b = await listClubs(db);
   assert.equal(b.clubs.length, 2);
   assert.deepEqual(b.clubs[1], { id: 'club-002', name: 'Thảo Điền Tennis Club', timeZone: 'Asia/Ho_Chi_Minh', createdAt: '2026-10-01' });
-  assert.equal(b.now, '2026-10-05T02:00:00.000Z');
+  assert.ok(!('now' in b));
 });

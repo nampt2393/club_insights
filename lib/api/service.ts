@@ -40,7 +40,7 @@ const toDto = (c: { id: string; name: string; timeZone: string; createdAt: Date 
 
 export async function listClubs(db: PrismaClient): Promise<ClubsResponse> {
   const clubs = await db.club.findMany({ orderBy: { createdAt: 'asc' } });
-  return { clubs: clubs.map(toDto), now: NOW.toISOString() };
+  return { clubs: clubs.map(toDto) };
 }
 
 async function loadSessions(db: PrismaClient, clubId: string, start: Date, end: Date): Promise<SessionRow[]> {
@@ -92,7 +92,6 @@ export async function getSummary(db: PrismaClient, clubId: string, q: RangeQuery
     body: {
       ...ctx.info,
       club: ctx.club,
-      now: NOW.toISOString(),
       hasData: heldEver > 0,
       metrics: {
         activePlayers: { value: cur.activePlayers, previous: prev?.activePlayers ?? null, definition: DEFINITIONS.activePlayers },

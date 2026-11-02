@@ -54,7 +54,7 @@ also carry `previousRange` (or `null`) and `previousClipped`; the drill-downs (`
 
 | Endpoint | Returns |
 |---|---|
-| `/api/clubs` | `{ clubs: [{ id, name, timeZone, createdAt }], now }` |
+| `/api/clubs` | `{ clubs: [{ id, name, timeZone, createdAt }] }` |
 | `/api/clubs/:clubId/summary` | the three metrics: `{ value, previous, definition }` each, plus `sessionsHeld.cancelled` and the no-show coverage/rate fields, `hasData` |
 | `/api/clubs/:clubId/weekly` | `weeks: [{ weekStart, weekEnd, partial, activePlayers, sessionsHeld, noShows, recordedSessions }]` (`noShows` is `null` for a week with no attendance taken) |
 | `/api/clubs/:clubId/players` | active players: `{ playerId, name, sessionsPlayed, lastPlayed }` |
