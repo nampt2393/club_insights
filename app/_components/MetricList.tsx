@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { InfoIcon } from './InfoIcon';
 
 /** The three numbers as one list: title and definition on the left, value and "See details" on the right. */
 export function MetricList({ children, dimmed }: { children: ReactNode; dimmed?: boolean }) {
@@ -25,10 +26,13 @@ type RowProps = {
 
 export function MetricRow({ label, definition, value, muted, note, onOpen }: RowProps) {
   return (
-    <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5">
+    <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-6 sm:px-5 sm:py-3">
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-slate-900">{label}</h3>
-        <p className="mt-1 text-xs leading-relaxed text-slate-500">{definition}</p>
+        <p className="mt-0.5 flex gap-1.5 text-xs leading-relaxed text-slate-500">
+          <InfoIcon />
+          <span>{definition}</span>
+        </p>
       </div>
       <div className="flex items-center justify-between gap-4 sm:justify-end">
         <div className="sm:text-right">
@@ -57,7 +61,7 @@ export function MetricListSkeleton() {
   return (
     <div className="animate-pulse divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white" aria-hidden>
       {[0, 1, 2].map((i) => (
-        <div key={i} className="flex items-center gap-6 p-5">
+        <div key={i} className="flex items-center gap-6 px-5 py-3">
           <div className="flex-1">
             <div className="h-3 w-28 rounded bg-slate-200" />
             <div className="mt-3 h-3 w-2/3 rounded bg-slate-100" />
