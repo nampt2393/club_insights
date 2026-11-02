@@ -96,10 +96,7 @@ export function WeeklyChart({ clubId, timeZone, q, empty }: Props) {
             <Legend color={SERIES.noShows.full} label={SERIES.noShows.label} />
             <Legend color="#e2e8f0" label="Lighter, dashed: partial week (cut by the period)" dashed />
           </span>
-          <span className="flex flex-col gap-0.5 sm:items-end sm:text-right">
-            <span>{COPY.weeklyNote}</span>
-            {data?.weeks.some((w) => w.noShows === null) && <span>{COPY.weekNoShowsUnknown}</span>}
-          </span>
+          {data?.weeks.some((w) => w.noShows === null) && <span className="sm:text-right">{COPY.weekNoShowsUnknown}</span>}
         </div>
       )}
     </section>

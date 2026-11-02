@@ -21,8 +21,6 @@ export const COPY = {
   },
   noEarlierPeriod: (created: string) => `No earlier period: club created ${created}`,
   previousClipped: '(previous period starts at club creation)',
-  weeklyNote:
-    "Weekly active players don't add up to the period total: a player who played in 3 weeks counts once in the total. Weekly no-shows do add up.",
   weekNoShowsUnknown: 'No yellow bar: attendance wasn\'t taken that week, so no-shows are unknown.',
   emptyChart: 'Your first week will show here',
 } as const;
