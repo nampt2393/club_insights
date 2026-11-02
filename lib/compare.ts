@@ -22,12 +22,9 @@ const ORDER: { key: MetricKey; label: string; goodWhen: 'up' | 'down' }[] = [
 ];
 
 export function comparisonRows(m: Metrics): ComparisonRow[] {
-  // A no-show count is only comparable when attendance was taken at the same number of sessions.
-  const sameCoverage = m.noShows.recordedSessions === m.noShows.previousRecordedSessions;
   return ORDER.map(({ key, label, goodWhen }) => {
     const { value, previous } = m[key];
     const delta = formatDelta(value, previous);
-    const comparable = key !== 'noShows' || sameCoverage;
-    return { key, label, current: value, previous, change: delta.text, tone: deltaTone(delta.direction, goodWhen, comparable) };
+    return { key, label, current: value, previous, change: delta.text, tone: deltaTone(delta.direction, goodWhen) };
   });
 }

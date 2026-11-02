@@ -96,12 +96,7 @@ export async function getSummary(db: PrismaClient, clubId: string, q: RangeQuery
       metrics: {
         activePlayers: { value: cur.activePlayers, previous: prev?.activePlayers ?? null },
         sessionsHeld: { value: cur.sessionsHeld, previous: prev?.sessionsHeld ?? null, cancelled: cur.cancelledSessions },
-        noShows: {
-          value: cur.noShows,
-          previous: prev?.noShows ?? null,
-          recordedSessions: cur.recordedSessions,
-          previousRecordedSessions: prev?.recordedSessions ?? null,
-        },
+        noShows: { value: cur.noShows, previous: prev?.noShows ?? null },
       },
     },
   };

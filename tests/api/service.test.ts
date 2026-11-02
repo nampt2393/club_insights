@@ -31,7 +31,7 @@ test('summary club-001 last 4 weeks', async () => {
   assert.deepEqual(b.metrics, {
     activePlayers: { value: 89, previous: 88 },
     sessionsHeld: { value: 20, previous: 20, cancelled: 0 },
-    noShows: { value: 15, previous: 14, recordedSessions: 11, previousRecordedSessions: 12 },
+    noShows: { value: 15, previous: 14 },
   });
   assert.equal(b.hasData, true);
   assert.ok(!('now' in b));
@@ -44,10 +44,11 @@ test('summary all-time totals', async () => {
   assert.equal(b.metrics.sessionsHeld.value, 186);
   assert.equal(b.metrics.sessionsHeld.cancelled, 9);
   assert.equal(b.metrics.noShows.value, 86);
-  assert.equal(b.metrics.noShows.recordedSessions, 104);
   assert.equal(b.previousRange, null);
   assert.equal(b.metrics.activePlayers.previous, null);
-  assert.equal(b.metrics.noShows.previousRecordedSessions, null);
+  assert.equal(b.metrics.noShows.previous, null);
+  const ns = (await getNoShows(db, 'club-001', { from: '2025-12-01', to: '2026-10-05' })).body as NoShowsResponse;
+  assert.equal(ns.recordedSessions, 104);
 });
 
 test('weekly last week', async () => {

@@ -63,11 +63,8 @@ export function weekTickLabel(weekStart: LocalDate, thisMonday: LocalDate): stri
   return weekStart === thisMonday ? 'This week' : formatShortDay(weekStart);
 }
 
-/**
- * Colour of a change badge. A change is only called good or bad when the two periods are
- * comparable — e.g. a no-show count isn't when attendance was taken at a different number of sessions.
- */
-export function deltaTone(direction: Delta['direction'], goodWhen: 'up' | 'down', comparable: boolean): 'good' | 'bad' | 'neutral' {
-  if (!comparable || direction === 'flat' || direction === 'none') return 'neutral';
+/** Colour of a change: good or bad by direction; no change or unknown is neutral. */
+export function deltaTone(direction: Delta['direction'], goodWhen: 'up' | 'down'): 'good' | 'bad' | 'neutral' {
+  if (direction === 'flat' || direction === 'none') return 'neutral';
   return direction === goodWhen ? 'good' : 'bad';
 }

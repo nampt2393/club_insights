@@ -8,7 +8,7 @@ type M = SummaryResponse['metrics'];
 const metrics: M = {
   activePlayers: { value: 89, previous: 88 },
   sessionsHeld: { value: 20, previous: 20, cancelled: 0 },
-  noShows: { value: 15, previous: 14, recordedSessions: 11, previousRecordedSessions: 12 },
+  noShows: { value: 15, previous: 14 },
 };
 
 test('rows come in the order active players, no-shows, sessions held', () =>
@@ -18,17 +18,17 @@ test('rows carry current, previous, change text and tone', () => {
   const [ap, ns, sh] = comparisonRows(metrics);
   assert.deepEqual(ap, { key: 'activePlayers', label: 'Active players', current: 89, previous: 88, change: '▲ +1', tone: 'good' });
   assert.deepEqual(sh, { key: 'sessionsHeld', label: 'Sessions held', current: 20, previous: 20, change: 'No change', tone: 'neutral' });
-  // attendance taken at 11 vs 12 sessions → the count change is not called good or bad
-  assert.deepEqual(ns, { key: 'noShows', label: 'No-shows', current: 15, previous: 14, change: '▲ +1', tone: 'neutral' });
+  // more no-shows is bad
+  assert.deepEqual(ns, { key: 'noShows', label: 'No-shows', current: 15, previous: 14, change: '▲ +1', tone: 'bad' });
 });
 
-test('fewer no-shows with the same coverage is good', () => {
-  const ns = comparisonRows({ ...metrics, noShows: { ...metrics.noShows, value: 10, recordedSessions: 12 } })[1];
+test('fewer no-shows is good', () => {
+  const ns = comparisonRows({ ...metrics, noShows: { value: 10, previous: 14 } })[1];
   assert.equal(ns.tone, 'good');
 });
 
 test('unknown no-shows stay null, never 0', () => {
-  const ns = comparisonRows({ ...metrics, noShows: { ...metrics.noShows, previous: null, previousRecordedSessions: 0 } })[1];
+  const ns = comparisonRows({ ...metrics, noShows: { ...metrics.noShows, previous: null } })[1];
   assert.equal(ns.previous, null);
   assert.equal(ns.change, '—');
   assert.equal(ns.tone, 'neutral');

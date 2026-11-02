@@ -26,8 +26,7 @@ export type SummaryResponse = PreviousPeriod & {
   metrics: {
     activePlayers: Metric;
     sessionsHeld: Metric & { cancelled: number };
-    // Sessions with attendance taken: no-show counts only compare when these match.
-    noShows: Metric & { recordedSessions: number; previousRecordedSessions: number | null };
+    noShows: Metric;
   };
 };
 

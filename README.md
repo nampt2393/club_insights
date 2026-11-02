@@ -35,8 +35,7 @@ within the period (club-local dates, inclusive), and have already started.
 
 - Attendance was only taken at some sessions. No-shows count those sessions only; the no-shows
   details say how many ("attendance taken at 11 of 20 sessions"). If none were recorded, the value is
-  **Unknown** (`null` in the API), never 0. When attendance was taken at a different number of
-  sessions than in the previous period, the no-shows change isn't marked good or bad.
+  **Unknown** (`null` in the API), never 0.
 - The **previous period** has the same number of days, immediately before the chosen one. If the club
   didn't exist yet, there is no comparison, and the screen says why.
 - **Weeks** run Monday–Sunday in the club's time zone (`clubs.time_zone`). A week cut by the period's
@@ -55,7 +54,7 @@ itself: the last 4 complete weeks, or club creation → today for a newer club (
 | Endpoint | Returns |
 |---|---|
 | `/api/clubs` | `{ clubs: [{ id, name, timeZone, createdAt }] }` |
-| `/api/clubs/:clubId/summary` | `club`, `hasData`, and the three metrics as `{ value, previous }`, plus `sessionsHeld.cancelled` and `noShows.recordedSessions` / `previousRecordedSessions` |
+| `/api/clubs/:clubId/summary` | `club`, `hasData`, and the three metrics as `{ value, previous }`, plus `sessionsHeld.cancelled` |
 | `/api/clubs/:clubId/weekly` | `weeks: [{ weekStart, weekEnd, partial, activePlayers, sessionsHeld, noShows, recordedSessions }]` (`noShows` is `null` for a week with no attendance taken) |
 | `/api/clubs/:clubId/players` | active players: `{ playerId, name, sessionsPlayed, lastPlayed }` |
 | `/api/clubs/:clubId/sessions` | `held` and `cancelled` sessions with booked/places and absences (`null` = not taken) |

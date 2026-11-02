@@ -25,9 +25,8 @@ test('weekTickLabel marks the current week', () => {
   assert.equal(weekTickLabel('2026-10-05', '2026-10-05'), 'This week');
   assert.equal(weekTickLabel('2026-09-28', '2026-10-05'), '28 Sep');
 });
-test('deltaTone colours only comparable changes', () => {
-  assert.equal(deltaTone('down', 'down', true), 'good');
-  assert.equal(deltaTone('up', 'down', true), 'bad');
-  assert.equal(deltaTone('down', 'down', false), 'neutral');
-  assert.equal(deltaTone('flat', 'up', true), 'neutral');
+test('deltaTone', () => {
+  assert.equal(deltaTone('down', 'down'), 'good');
+  assert.equal(deltaTone('up', 'down'), 'bad');
+  assert.equal(deltaTone('flat', 'up'), 'neutral');
 });
