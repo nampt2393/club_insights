@@ -8,18 +8,24 @@ export function defaultRange(clubCreated: LocalDate, today: LocalDate): DateRang
   return { from, to: addDays(thisMonday, -1) };
 }
 
-export type PresetId = 'last4w' | 'last12w' | 'thisMonth' | 'lastMonth' | 'all';
+export type PresetId = 'thisWeek' | 'last1w' | 'last2w' | 'last3w' | 'last4w' | 'last12w' | 'all';
 export type Preset = { id: PresetId; label: string; range: DateRange };
 
 export function presets(clubCreated: LocalDate, today: LocalDate): Preset[] {
   const thisMonday = mondayOf(today);
-  const monthStart = `${today.slice(0, 8)}01`;
-  const lastMonthEnd = addDays(monthStart, -1);
+  // "Last N weeks" = the N complete Mon–Sun weeks before this one.
+  const lastWeeks = (n: number, id: PresetId, label: string): Preset => ({
+    id,
+    label,
+    range: { from: addDays(thisMonday, -7 * n), to: addDays(thisMonday, -1) },
+  });
   return [
-    { id: 'last4w', label: 'Last 4 weeks', range: { from: addDays(thisMonday, -28), to: addDays(thisMonday, -1) } },
-    { id: 'last12w', label: 'Last 12 weeks', range: { from: addDays(thisMonday, -84), to: addDays(thisMonday, -1) } },
-    { id: 'thisMonth', label: 'This month', range: { from: monthStart, to: today } },
-    { id: 'lastMonth', label: 'Last month', range: { from: `${lastMonthEnd.slice(0, 8)}01`, to: lastMonthEnd } },
+    { id: 'thisWeek', label: 'This week', range: { from: thisMonday, to: today } },
+    lastWeeks(1, 'last1w', 'Last week'),
+    lastWeeks(2, 'last2w', 'Last 2 weeks'),
+    lastWeeks(3, 'last3w', 'Last 3 weeks'),
+    lastWeeks(4, 'last4w', 'Last 4 weeks'),
+    lastWeeks(12, 'last12w', 'Last 12 weeks'),
     { id: 'all', label: 'All time', range: { from: clubCreated, to: today } },
   ];
 }
