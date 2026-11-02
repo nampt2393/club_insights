@@ -5,6 +5,7 @@ import type { SummaryResponse } from '../../lib/api-types';
 import { comparisonRows, type ComparisonRow } from '../../lib/compare';
 import { COPY } from '../../lib/copy';
 import { formatLocalDate, formatRange } from '../../lib/format';
+import type { DateRange } from '../../lib/time';
 
 // "This period" carries the brand colour; the previous period recedes in grey, so the eye lands
 // on now and reads the grey bar as the reference. Values are always labelled, so colour never
@@ -14,7 +15,7 @@ const PREVIOUS = '#cbd5e1'; // slate-300
 const INK = '#475569'; // slate-600
 const TONE_TEXT = { good: '#047857', bad: '#be123c', neutral: '#64748b' }; // emerald-700, rose-700, slate-500
 
-export function ComparisonCard({ s }: { s: SummaryResponse }) {
+export function ComparisonCard({ s, range }: { s: SummaryResponse; range: DateRange }) {
   const rows = comparisonRows(s.metrics);
   const prev = s.previousRange;
   const anyUnknown = rows.some((r) => r.current === null || r.previous === null);
@@ -28,7 +29,7 @@ export function ComparisonCard({ s }: { s: SummaryResponse }) {
         {prev && (
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
             <Legend color={PREVIOUS} label={`Previous: ${formatRange(prev)}`} />
-            <Legend color={CURRENT} label={`This period: ${formatRange(s.range)}`} />
+            <Legend color={CURRENT} label={`This period: ${formatRange(range)}`} />
           </p>
         )}
       </div>

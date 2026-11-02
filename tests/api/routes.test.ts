@@ -39,7 +39,7 @@ const ctx = (clubId: string) => ({ params: Promise.resolve({ clubId }) });
 // listClubs(), covered in service.test.ts, and `pnpm build` must list the route as dynamic (ƒ).
 
 test('GET summary 200 json', async () => {
-  const res = await routes.summary.GET(req('/api/clubs/club-001/summary'), ctx('club-001'));
+  const res = await routes.summary.GET(req('/api/clubs/club-001/summary?from=2026-09-07&to=2026-10-04'), ctx('club-001'));
   assert.equal(res.status, 200);
   assert.match(res.headers.get('content-type') ?? '', /application\/json/);
   assert.equal((await res.json()).metrics.sessionsHeld.value, 20);
@@ -49,6 +49,12 @@ test('GET summary 400', async () => {
   const res = await routes.summary.GET(req('/api/clubs/club-001/summary?from=2026-10-04&to=2026-09-01'), ctx('club-001'));
   assert.equal(res.status, 400);
   assert.deepEqual(await res.json(), { error: 'from must be on or before to' });
+});
+
+test('GET without from/to → 400', async () => {
+  const res = await routes.players.GET(req('/api/clubs/club-001/players'), ctx('club-001'));
+  assert.equal(res.status, 400);
+  assert.deepEqual(await res.json(), { error: 'from and to must both be given, as YYYY-MM-DD' });
 });
 
 test('unknown club → 404', async () => {

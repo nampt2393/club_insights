@@ -5,6 +5,7 @@ import { useState } from 'react';
 import type { SummaryResponse } from '../../lib/api-types';
 import { useClubs, useSummary } from '../../lib/client/api';
 import { pickClub } from '../../lib/client/club';
+import { requestedRange } from '../../lib/client/range';
 import { todayLocal } from '../../lib/clock';
 import { COPY, type MetricKey } from '../../lib/copy';
 import { ComparisonCard } from './ComparisonCard';
@@ -30,10 +31,11 @@ export function Dashboard() {
   const [open, setOpen] = useState<MetricKey | null>(null);
 
   // Club and range live in the URL. A missing or unknown club falls back to the first one; a
-  // missing range lets the API choose its default, which we then display.
+  // missing range becomes the default range (the API requires one).
   const picked = clubs.data ? pickClub(clubs.data.clubs, params.get('club')) : undefined;
   const club = picked && 'club' in picked ? picked.club : undefined;
-  const q = { from: params.get('from') ?? undefined, to: params.get('to') ?? undefined };
+  const q = club ? requestedRange(params.get('from'), params.get('to'), club.createdAt, todayLocal(club.timeZone)) : {};
+  const range = q.from && q.to ? { from: q.from, to: q.to } : undefined;
   const summary = useSummary(club?.id, q);
 
   function navigate(next: { club: string; range?: DateRange }) {
@@ -62,7 +64,8 @@ export function Dashboard() {
       <Header
         clubs={clubs.data!.clubs}
         club={club}
-        info={s}
+        range={range}
+        previous={s}
         presets={buildPresets(club.createdAt, today)}
         today={today}
         onClubChange={(id) => navigate({ club: id })}
@@ -79,13 +82,13 @@ export function Dashboard() {
           <Cards s={s} onOpen={setOpen} />
         </MetricList>
       )}
-      {s && s.hasData && <ComparisonCard s={s} />}
+      {s && s.hasData && range && <ComparisonCard s={s} range={range} />}
       {!summary.error && <WeeklyChart clubId={club.id} timeZone={club.timeZone} q={q} empty={s ? !s.hasData : false} />}
-      {s && (
+      {s && range && (
         <DrillDownDialog
           open={open !== null}
           title={open ? TITLES[open] : ''}
-          subtitle={`${s.club.name} · ${formatRange(s.range)}`}
+          subtitle={`${s.club.name} · ${formatRange(range)}`}
           definition={open ? s.metrics[open].definition : ''}
           onClose={() => setOpen(null)}
         >

@@ -1,6 +1,6 @@
 'use client';
 
-import type { ClubDto, RangeInfo } from '../../lib/api-types';
+import type { ClubDto, PreviousPeriod } from '../../lib/api-types';
 import { COPY } from '../../lib/copy';
 import { formatLocalDate, formatRange } from '../../lib/format';
 import type { Preset } from '../../lib/ranges';
@@ -10,14 +10,15 @@ import { RangePicker } from './RangePicker';
 type Props = {
   clubs: ClubDto[];
   club: ClubDto;
-  info: RangeInfo | undefined;
+  range: DateRange | undefined; // what the dashboard asked for; undefined when the URL's range is broken
+  previous: PreviousPeriod | undefined; // from summary, once it loads
   presets: Preset[];
   today: LocalDate;
   onClubChange(id: string): void;
   onRangeChange(r: DateRange): void;
 };
 
-export function Header({ clubs, club, info, presets, today, onClubChange, onRangeChange }: Props) {
+export function Header({ clubs, club, range, previous, presets, today, onClubChange, onRangeChange }: Props) {
   return (
     <header className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -39,16 +40,16 @@ export function Header({ clubs, club, info, presets, today, onClubChange, onRang
           </label>
           <p className="mt-1 text-xs text-slate-500">{COPY.dataAsOf}</p>
         </div>
-        {info && <RangePicker key={`${info.range.from}:${info.range.to}`} range={info.range} presets={presets} today={today} onChange={onRangeChange} />}
+        {range && <RangePicker key={`${range.from}:${range.to}`} range={range} presets={presets} today={today} onChange={onRangeChange} />}
       </div>
-      {info && (
+      {range && previous && (
         <p className="mt-4 border-t border-slate-100 pt-3 text-sm text-slate-600">
-          <span className="font-medium text-slate-900">{formatRange(info.range)}</span>
-          {info.previousRange ? (
+          <span className="font-medium text-slate-900">{formatRange(range)}</span>
+          {previous.previousRange ? (
             <>
               {' '}
-              compared with <span className="font-medium text-slate-900">{formatRange(info.previousRange)}</span>
-              {info.previousClipped && <span className="text-slate-500"> {COPY.previousClipped}</span>}
+              compared with <span className="font-medium text-slate-900">{formatRange(previous.previousRange)}</span>
+              {previous.previousClipped && <span className="text-slate-500"> {COPY.previousClipped}</span>}
             </>
           ) : (
             <span className="text-slate-500"> · {COPY.noEarlierPeriod(formatLocalDate(club.createdAt))}</span>

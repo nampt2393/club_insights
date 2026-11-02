@@ -90,7 +90,8 @@ export async function getSummary(db: PrismaClient, clubId: string, q: RangeQuery
   return {
     status: 200,
     body: {
-      ...ctx.info,
+      previousRange: ctx.info.previousRange,
+      previousClipped: ctx.info.previousClipped,
       club: ctx.club,
       hasData: heldEver > 0,
       metrics: {
@@ -120,7 +121,7 @@ export async function getSummary(db: PrismaClient, clubId: string, q: RangeQuery
 export async function getWeekly(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Result<WeeklyResponse>> {
   const ctx = await load(db, clubId, q);
   if (isError(ctx)) return ctx;
-  return { status: 200, body: { ...ctx.info, weeks: weeklySeries(ctx.sessions, ctx.info.range, ctx.club.timeZone, NOW) } };
+  return { status: 200, body: { weeks: weeklySeries(ctx.sessions, ctx.info.range, ctx.club.timeZone, NOW) } };
 }
 
 export async function getPlayers(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Result<PlayersResponse>> {
@@ -128,14 +129,14 @@ export async function getPlayers(db: PrismaClient, clubId: string, q: RangeQuery
   if (isError(ctx)) return ctx;
   return {
     status: 200,
-    body: { range: ctx.info.range, players: activePlayerRows(ctx.sessions, ctx.window, NOW, ctx.club.timeZone) },
+    body: { players: activePlayerRows(ctx.sessions, ctx.window, NOW, ctx.club.timeZone) },
   };
 }
 
 export async function getSessions(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Result<SessionsResponse>> {
   const ctx = await load(db, clubId, q);
   if (isError(ctx)) return ctx;
-  return { status: 200, body: { range: ctx.info.range, ...sessionRows(ctx.sessions, ctx.window, NOW) } };
+  return { status: 200, body: { ...sessionRows(ctx.sessions, ctx.window, NOW) } };
 }
 
 export async function getNoShows(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Result<NoShowsResponse>> {
@@ -145,7 +146,6 @@ export async function getNoShows(db: PrismaClient, clubId: string, q: RangeQuery
   return {
     status: 200,
     body: {
-      range: ctx.info.range,
       recordedSessions: m.recordedSessions,
       totalSessions: m.sessionsHeld,
       players: noShowRows(ctx.sessions, ctx.window, NOW),

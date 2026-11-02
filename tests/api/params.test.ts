@@ -6,8 +6,13 @@ const C = '2025-12-01';
 const T = '2026-10-05';
 const FORMAT = 'from and to must both be given, as YYYY-MM-DD';
 
-test('resolveRange defaults when both missing', () =>
-  assert.deepEqual(resolveRange({}, C, T), {
+test('resolveRange requires from and to', () => {
+  assert.deepEqual(resolveRange({}, C, T), { ok: false, error: FORMAT });
+  assert.deepEqual(resolveRange({ from: null, to: null }, C, T), { ok: false, error: FORMAT });
+});
+
+test('resolveRange works out the previous period', () =>
+  assert.deepEqual(resolveRange({ from: '2026-09-07', to: '2026-10-04' }, C, T), {
     ok: true,
     info: { range: { from: '2026-09-07', to: '2026-10-04' }, previousRange: { from: '2026-08-10', to: '2026-09-06' }, previousClipped: false },
   }));

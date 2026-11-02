@@ -17,13 +17,16 @@ let db: PrismaClient;
 let cleanup: () => Promise<void>;
 
 before(async () => ({ db, cleanup } = await setupSeededDb()));
+
+// The client always sends the range: the last 4 complete weeks before Mon 5 Oct 2026.
+const R = { from: '2026-09-07', to: '2026-10-04' };
 after(() => cleanup());
 
-test('summary club-001 default range', async () => {
-  const r = await getSummary(db, 'club-001', {});
+test('summary club-001 last 4 weeks', async () => {
+  const r = await getSummary(db, 'club-001', R);
   assert.equal(r.status, 200);
   const b = r.body as SummaryResponse;
-  assert.deepEqual(b.range, { from: '2026-09-07', to: '2026-10-04' });
+  assert.ok(!('range' in b)); // the client sent it
   assert.deepEqual(b.previousRange, { from: '2026-08-10', to: '2026-09-06' });
   assert.equal(b.metrics.activePlayers.value, 89);
   assert.equal(b.metrics.activePlayers.previous, 88);
@@ -57,7 +60,7 @@ test('summary all-time totals', async () => {
 });
 
 test('weekly last week', async () => {
-  const b = (await getWeekly(db, 'club-001', {})).body as WeeklyResponse;
+  const b = (await getWeekly(db, 'club-001', R)).body as WeeklyResponse;
   assert.equal(b.weeks.length, 4);
   assert.deepEqual(b.weeks[3], { weekStart: '2026-09-28', weekEnd: '2026-10-04', partial: false, activePlayers: 44, sessionsHeld: 5, noShows: 2, recordedSessions: 2 });
   assert.equal(b.weeks[2].activePlayers, 45);
@@ -66,28 +69,34 @@ test('weekly last week', async () => {
 });
 
 test('players drill-down count matches card', async () => {
-  const b = (await getPlayers(db, 'club-001', {})).body as PlayersResponse;
+  const b = (await getPlayers(db, 'club-001', R)).body as PlayersResponse;
   assert.equal(b.players.length, 89);
 });
 
-// Drill-downs carry only the range they cover: no comparison period, no definition (summary has it).
-test('drill-down responses carry range only', async () => {
-  const range = { from: '2026-09-07', to: '2026-10-04' };
-  for (const get of [getPlayers, getSessions, getNoShows]) {
-    const b = (await get(db, 'club-001', {})).body as unknown as Record<string, unknown>;
-    assert.deepEqual(b.range, range);
-    for (const k of ['previousRange', 'previousClipped', 'definition']) assert.ok(!(k in b), `${get.name} returns ${k}`);
+// The client sent the range, so only summary says anything about ranges (the comparison period).
+test('weekly and drill-downs carry no range fields', async () => {
+  for (const get of [getWeekly, getPlayers, getSessions, getNoShows]) {
+    const b = (await get(db, 'club-001', R)).body as unknown as Record<string, unknown>;
+    for (const k of ['range', 'previousRange', 'previousClipped', 'definition']) assert.ok(!(k in b), `${get.name} returns ${k}`);
+  }
+});
+
+test('missing range → 400', async () => {
+  for (const get of [getSummary, getWeekly, getPlayers, getSessions, getNoShows]) {
+    const r = await get(db, 'club-001', {});
+    assert.equal(r.status, 400, get.name);
+    assert.deepEqual(r.body, { error: 'from and to must both be given, as YYYY-MM-DD' });
   }
 });
 
 test('sessions drill-down count matches card', async () => {
-  const b = (await getSessions(db, 'club-001', {})).body as SessionsResponse;
+  const b = (await getSessions(db, 'club-001', R)).body as SessionsResponse;
   assert.equal(b.held.length, 20);
   assert.equal(b.cancelled.length, 0);
 });
 
 test('no-shows top player', async () => {
-  const b = (await getNoShows(db, 'club-001', {})).body as NoShowsResponse;
+  const b = (await getNoShows(db, 'club-001', R)).body as NoShowsResponse;
   assert.equal(b.players[0].playerId, 'p046');
   assert.equal(b.players[0].noShows, 2);
   assert.equal(b.players.reduce((n, p) => n + p.noShows, 0), 15);
@@ -96,9 +105,8 @@ test('no-shows top player', async () => {
 });
 
 test('new club', async () => {
-  const b = (await getSummary(db, 'club-002', {})).body as SummaryResponse;
+  const b = (await getSummary(db, 'club-002', { from: '2026-10-01', to: '2026-10-05' })).body as SummaryResponse;
   assert.equal(b.hasData, false);
-  assert.deepEqual(b.range, { from: '2026-10-01', to: '2026-10-05' });
   assert.equal(b.previousRange, null);
   assert.equal(b.metrics.sessionsHeld.value, 0);
   assert.equal(b.metrics.activePlayers.value, 0);

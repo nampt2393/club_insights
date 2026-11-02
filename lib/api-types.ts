@@ -9,15 +9,17 @@ export type { ActivePlayerRow, NoShowRow, SessionListItem, WeekPoint, DateRange,
 export type ClubDto = { id: string; name: string; timeZone: string; createdAt: LocalDate };
 export type ClubsResponse = { clubs: ClubDto[] };
 
-export type RangeInfo = {
-  range: DateRange;
+// Every endpoint except /api/clubs requires ?from&to, so responses don't echo the range back.
+// Summary adds the comparison period the server worked out from it.
+export type PreviousPeriod = {
   previousRange: DateRange | null; // null when the club didn't exist yet
   previousClipped: boolean; // previous period was cut at club creation
 };
+export type RangeInfo = { range: DateRange } & PreviousPeriod;
 
 export type Metric = { value: number | null; previous: number | null; definition: string };
 
-export type SummaryResponse = RangeInfo & {
+export type SummaryResponse = PreviousPeriod & {
   club: ClubDto;
   hasData: boolean; // false when the club has never held a session
   metrics: {
@@ -34,12 +36,10 @@ export type SummaryResponse = RangeInfo & {
   };
 };
 
-export type WeeklyResponse = RangeInfo & { weeks: WeekPoint[] };
-// Drill-downs: just the range they cover. The comparison period and definitions live in summary.
-export type DrillDownRange = { range: DateRange };
-export type PlayersResponse = DrillDownRange & { players: ActivePlayerRow[] };
-export type SessionsResponse = DrillDownRange & { held: SessionListItem[]; cancelled: SessionListItem[] };
-export type NoShowsResponse = DrillDownRange & {
+export type WeeklyResponse = { weeks: WeekPoint[] };
+export type PlayersResponse = { players: ActivePlayerRow[] };
+export type SessionsResponse = { held: SessionListItem[]; cancelled: SessionListItem[] };
+export type NoShowsResponse = {
   recordedSessions: number;
   totalSessions: number;
   players: NoShowRow[];

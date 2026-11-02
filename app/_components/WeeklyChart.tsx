@@ -44,7 +44,7 @@ type Props = { clubId: string; timeZone: string; q: Partial<DateRange>; empty?: 
 
 export function WeeklyChart({ clubId, timeZone, q, empty }: Props) {
   const weekly = useWeekly(clubId, q);
-  const data = weekly.data;
+  const data = weekly.data; // only arrives for a full range: the API 400s otherwise
   const thisMonday = mondayOf(todayLocal(timeZone));
   const [chartRef, chartWidth] = useWidth<HTMLDivElement>();
   const labelled = !!data && chartWidth / Math.max(data.weeks.length, 1) >= MIN_PX_PER_LABELLED_WEEK;
@@ -78,7 +78,7 @@ export function WeeklyChart({ clubId, timeZone, q, empty }: Props) {
                   minTickGap={12}
                 />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#64748b' }} tickLine={false} axisLine={false} width={40} />
-                <Tooltip cursor={{ fill: '#eef2ff' }} content={<WeekTooltip range={data.range} thisMonday={thisMonday} />} />
+                <Tooltip cursor={{ fill: '#eef2ff' }} content={<WeekTooltip range={{ from: q.from!, to: q.to! }} thisMonday={thisMonday} />} />
                 {seriesBars(data.weeks, labelled)}
               </BarChart>
             </ResponsiveContainer>
