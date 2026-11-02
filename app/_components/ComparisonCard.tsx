@@ -2,7 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { SummaryResponse } from '../../lib/api-types';
-import { comparisonRows, noShowsComparisonNote, type ComparisonRow } from '../../lib/compare';
+import { comparisonRows, type ComparisonRow } from '../../lib/compare';
 import { COPY } from '../../lib/copy';
 import { formatLocalDate, formatRange } from '../../lib/format';
 
@@ -16,7 +16,6 @@ const TONE_TEXT = { good: '#047857', bad: '#be123c', neutral: '#64748b' }; // em
 
 export function ComparisonCard({ s }: { s: SummaryResponse }) {
   const rows = comparisonRows(s.metrics);
-  const note = noShowsComparisonNote(s.metrics.noShows);
   const prev = s.previousRange;
   const anyUnknown = rows.some((r) => r.current === null || r.previous === null);
 
@@ -54,12 +53,7 @@ export function ComparisonCard({ s }: { s: SummaryResponse }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          {(note || anyUnknown) && (
-            <div className="mt-3 flex flex-col gap-1 text-xs text-slate-500">
-              {note && <p>{note}</p>}
-              {anyUnknown && <p>A missing bar means unknown: attendance wasn&apos;t taken in that period.</p>}
-            </div>
-          )}
+          {anyUnknown && <p className="mt-3 text-xs text-slate-500">A missing bar means unknown: attendance wasn&apos;t taken in that period.</p>}
         </>
       )}
     </section>

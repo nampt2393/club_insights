@@ -2,7 +2,7 @@
 
 import type { SummaryResponse } from './api-types';
 import type { MetricKey } from './copy';
-import { deltaTone, formatDelta, formatRate } from './format';
+import { deltaTone, formatDelta } from './format';
 
 type Metrics = SummaryResponse['metrics'];
 
@@ -30,11 +30,4 @@ export function comparisonRows(m: Metrics): ComparisonRow[] {
     const comparable = key !== 'noShows' || sameCoverage;
     return { key, label, current: value, previous, change: delta.text, tone: deltaTone(delta.direction, goodWhen, comparable) };
   });
-}
-
-export function noShowsComparisonNote(ns: Metrics['noShows']): string | null {
-  if (ns.previousRecordedSessions === null || ns.recordedSessions === ns.previousRecordedSessions) return null;
-  const coverage = `attendance was taken at ${ns.recordedSessions} of ${ns.totalSessions} sessions this period and ${ns.previousRecordedSessions} of ${ns.previousTotalSessions} before.`;
-  const rate = ns.rate !== null && ns.previousRate !== null ? ` No-show rate: ${formatRate(ns.rate)} now, ${formatRate(ns.previousRate)} before.` : '';
-  return `No-shows aren't like-for-like: ${coverage}${rate}`;
 }

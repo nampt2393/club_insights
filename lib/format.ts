@@ -55,12 +55,7 @@ export function formatDelta(current: number | null, previous: number | null): De
   const diff = current - previous;
   if (diff === 0) return { text: 'No change', direction: 'flat' };
   const sign = diff > 0 ? '▲ +' : '▼ −';
-  const pct = previous > 0 ? ` (${Math.round((Math.abs(diff) / previous) * 100)}%)` : '';
-  return { text: `${sign}${Math.abs(diff)}${pct}`, direction: diff > 0 ? 'up' : 'down' };
-}
-
-export function formatRate(rate: number | null): string {
-  return rate === null ? 'Unknown' : `${Math.round(rate * 100)}%`;
+  return { text: `${sign}${Math.abs(diff)}`, direction: diff > 0 ? 'up' : 'down' };
 }
 
 /** X-axis label: the week containing "today" reads 'This week' so a low, unfinished week isn't mistaken for a drop. */

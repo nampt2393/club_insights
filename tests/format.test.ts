@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { apiUrl } from '../lib/client/url';
-import { deltaTone, formatDelta, formatLocalDate, formatRange, formatRate, formatSessionTime, formatWeek, weekTickLabel } from '../lib/format';
+import { deltaTone, formatDelta, formatLocalDate, formatRange, formatSessionTime, formatWeek, weekTickLabel } from '../lib/format';
 
-test('formatDelta up with pct', () => assert.deepEqual(formatDelta(89, 88), { text: '▲ +1 (1%)', direction: 'up' }));
-test('formatDelta down with pct', () => assert.deepEqual(formatDelta(15, 20), { text: '▼ −5 (25%)', direction: 'down' }));
+test('formatDelta up, no percentage', () => assert.deepEqual(formatDelta(89, 88), { text: '▲ +1', direction: 'up' }));
+test('formatDelta down, no percentage', () => assert.deepEqual(formatDelta(15, 20), { text: '▼ −5', direction: 'down' }));
 test('formatDelta flat', () => assert.deepEqual(formatDelta(20, 20), { text: 'No change', direction: 'flat' }));
-test('formatDelta from zero has no pct', () => assert.deepEqual(formatDelta(3, 0), { text: '▲ +3', direction: 'up' }));
 test('formatDelta unknown', () => {
   assert.deepEqual(formatDelta(15, null), { text: '—', direction: 'none' });
   assert.deepEqual(formatDelta(null, 15), { text: '—', direction: 'none' });
@@ -17,10 +16,6 @@ test('formatRange same year', () => assert.equal(formatRange({ from: '2026-09-07
 test('formatRange cross year', () => assert.equal(formatRange({ from: '2025-12-01', to: '2026-10-05' }), '1 Dec 2025 – 5 Oct 2026'));
 test('formatRange single day', () => assert.equal(formatRange({ from: '2026-09-08', to: '2026-09-08' }), '8 Sep'));
 test('formatWeek', () => assert.equal(formatWeek('2026-09-28', '2026-10-04'), 'Mon 28 Sep – Sun 4 Oct'));
-test('formatRate', () => {
-  assert.equal(formatRate(15 / 151), '10%');
-  assert.equal(formatRate(null), 'Unknown');
-});
 test('formatLocalDate', () => assert.equal(formatLocalDate('2026-10-01'), '1 Oct 2026'));
 test('apiUrl omits empty', () => assert.equal(apiUrl('/api/clubs/club-001/summary', {}), '/api/clubs/club-001/summary'));
 test('apiUrl adds range', () =>

@@ -7,7 +7,6 @@ import { useClubs, useSummary } from '../../lib/client/api';
 import { pickClub } from '../../lib/client/club';
 import { todayLocal } from '../../lib/clock';
 import { COPY, type MetricKey } from '../../lib/copy';
-import { formatRate } from '../../lib/format';
 import { ComparisonCard } from './ComparisonCard';
 import { presets as buildPresets } from '../../lib/ranges';
 import type { DateRange } from '../../lib/time';
@@ -133,21 +132,6 @@ function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }
         value={unknown ? COPY.unknown : String(ns.value)}
         muted={unknown}
         definition={ns.definition}
-        extra={
-          <>
-            <span>
-              Attendance taken at <strong className="font-semibold tabular-nums">{ns.recordedSessions} of {ns.totalSessions}</strong> sessions
-              {ns.totalSessions - ns.recordedSessions > 0 && (
-                <span className="text-slate-500"> · {ns.totalSessions - ns.recordedSessions} unknown</span>
-              )}
-            </span>
-            {!unknown && (
-              <span className="text-slate-600">
-                No-show rate <strong className="font-semibold tabular-nums">{formatRate(ns.rate)}</strong>
-              </span>
-            )}
-          </>
-        }
         onOpen={() => onOpen('noShows')}
       />
     </>
