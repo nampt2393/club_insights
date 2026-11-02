@@ -12,7 +12,6 @@ test('presets', () =>
   assert.deepEqual(
     presets('2025-12-01', '2026-10-05').map((p) => [p.id, p.range]),
     [
-      ['thisWeek', { from: '2026-10-05', to: '2026-10-05' }], // today is Monday: the week so far is one day
       ['last1w', { from: '2026-09-28', to: '2026-10-04' }],
       ['last2w', { from: '2026-09-21', to: '2026-10-04' }],
       ['last3w', { from: '2026-09-14', to: '2026-10-04' }],
@@ -25,8 +24,5 @@ test('presets', () =>
 test('preset labels', () =>
   assert.deepEqual(
     presets('2025-12-01', '2026-10-05').map((p) => p.label),
-    ['This week', 'Last week', 'Last 2 weeks', 'Last 3 weeks', 'Last 4 weeks', 'Last 12 weeks', 'All time'],
+    ['Last week', 'Last 2 weeks', 'Last 3 weeks', 'Last 4 weeks', 'Last 12 weeks', 'All time'],
   ));
-
-test('this week mid-week runs Monday to today', () =>
-  assert.deepEqual(presets('2025-12-01', '2026-10-08')[0].range, { from: '2026-10-05', to: '2026-10-08' }));

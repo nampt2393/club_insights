@@ -8,7 +8,7 @@ export function defaultRange(clubCreated: LocalDate, today: LocalDate): DateRang
   return { from, to: addDays(thisMonday, -1) };
 }
 
-export type PresetId = 'thisWeek' | 'last1w' | 'last2w' | 'last3w' | 'last4w' | 'last12w' | 'all';
+export type PresetId = 'last1w' | 'last2w' | 'last3w' | 'last4w' | 'last12w' | 'all';
 export type Preset = { id: PresetId; label: string; range: DateRange };
 
 export function presets(clubCreated: LocalDate, today: LocalDate): Preset[] {
@@ -20,7 +20,6 @@ export function presets(clubCreated: LocalDate, today: LocalDate): Preset[] {
     range: { from: addDays(thisMonday, -7 * n), to: addDays(thisMonday, -1) },
   });
   return [
-    { id: 'thisWeek', label: 'This week', range: { from: thisMonday, to: today } },
     lastWeeks(1, 'last1w', 'Last week'),
     lastWeeks(2, 'last2w', 'Last 2 weeks'),
     lastWeeks(3, 'last3w', 'Last 3 weeks'),
