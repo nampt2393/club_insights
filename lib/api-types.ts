@@ -36,10 +36,11 @@ export type SummaryResponse = RangeInfo & {
 };
 
 export type WeeklyResponse = RangeInfo & { weeks: WeekPoint[] };
-export type PlayersResponse = RangeInfo & { definition: string; players: ActivePlayerRow[] };
-export type SessionsResponse = RangeInfo & { definition: string; held: SessionListItem[]; cancelled: SessionListItem[] };
-export type NoShowsResponse = RangeInfo & {
-  definition: string;
+// Drill-downs: just the range they cover. The comparison period and definitions live in summary.
+export type DrillDownRange = { range: DateRange };
+export type PlayersResponse = DrillDownRange & { players: ActivePlayerRow[] };
+export type SessionsResponse = DrillDownRange & { held: SessionListItem[]; cancelled: SessionListItem[] };
+export type NoShowsResponse = DrillDownRange & {
   recordedSessions: number;
   totalSessions: number;
   players: NoShowRow[];

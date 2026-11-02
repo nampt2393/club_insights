@@ -48,7 +48,9 @@ within the period (club-local dates, inclusive), and have already started.
 
 All endpoints are `GET`, return JSON and take optional `from` / `to` as club-local `YYYY-MM-DD`
 (both or neither; with neither, the default is the last 4 complete weeks, or club creation → today
-for a newer club). Each response carries `range`, `previousRange` (or `null`) and `previousClipped`.
+for a newer club). Every response carries `range`, the dates it actually covers. `summary` and `weekly`
+also carry `previousRange` (or `null`) and `previousClipped`; the drill-downs (`players`, `sessions`,
+`no-shows`) don't, and the definitions are only in `summary`.
 
 | Endpoint | Returns |
 |---|---|

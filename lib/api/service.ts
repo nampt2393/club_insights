@@ -129,14 +129,14 @@ export async function getPlayers(db: PrismaClient, clubId: string, q: RangeQuery
   if (isError(ctx)) return ctx;
   return {
     status: 200,
-    body: { ...ctx.info, definition: DEFINITIONS.activePlayers, players: activePlayerRows(ctx.sessions, ctx.window, NOW, ctx.club.timeZone) },
+    body: { range: ctx.info.range, players: activePlayerRows(ctx.sessions, ctx.window, NOW, ctx.club.timeZone) },
   };
 }
 
 export async function getSessions(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Result<SessionsResponse>> {
   const ctx = await load(db, clubId, q);
   if (isError(ctx)) return ctx;
-  return { status: 200, body: { ...ctx.info, definition: DEFINITIONS.sessionsHeld, ...sessionRows(ctx.sessions, ctx.window, NOW) } };
+  return { status: 200, body: { range: ctx.info.range, ...sessionRows(ctx.sessions, ctx.window, NOW) } };
 }
 
 export async function getNoShows(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Result<NoShowsResponse>> {
@@ -146,8 +146,7 @@ export async function getNoShows(db: PrismaClient, clubId: string, q: RangeQuery
   return {
     status: 200,
     body: {
-      ...ctx.info,
-      definition: DEFINITIONS.noShows,
+      range: ctx.info.range,
       recordedSessions: m.recordedSessions,
       totalSessions: m.sessionsHeld,
       players: noShowRows(ctx.sessions, ctx.window, NOW),

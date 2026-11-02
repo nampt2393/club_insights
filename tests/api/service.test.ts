@@ -68,7 +68,16 @@ test('weekly last week', async () => {
 test('players drill-down count matches card', async () => {
   const b = (await getPlayers(db, 'club-001', {})).body as PlayersResponse;
   assert.equal(b.players.length, 89);
-  assert.equal(b.definition, DEFINITIONS.activePlayers);
+});
+
+// Drill-downs carry only the range they cover: no comparison period, no definition (summary has it).
+test('drill-down responses carry range only', async () => {
+  const range = { from: '2026-09-07', to: '2026-10-04' };
+  for (const get of [getPlayers, getSessions, getNoShows]) {
+    const b = (await get(db, 'club-001', {})).body as unknown as Record<string, unknown>;
+    assert.deepEqual(b.range, range);
+    for (const k of ['previousRange', 'previousClipped', 'definition']) assert.ok(!(k in b), `${get.name} returns ${k}`);
+  }
 });
 
 test('sessions drill-down count matches card', async () => {
