@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { createPrismaClient } from '../../lib/prisma';
+import { createPrismaClient } from '@/lib/server/prisma';
 import { seed } from './seed';
 
 const DATA_DIR = path.resolve(import.meta.dirname, '../../data');

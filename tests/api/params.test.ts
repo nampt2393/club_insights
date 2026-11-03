@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { resolveRange } from '../../lib/api/params';
+import { resolveRange } from '@/lib/server/api/params';
 
 const C = '2025-12-01';
 const T = '2026-10-05';

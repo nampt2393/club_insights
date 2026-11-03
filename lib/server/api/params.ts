@@ -1,5 +1,5 @@
-import type { RangeInfo } from '../api-types';
-import { isLocalDate, previousRange, type LocalDate } from '../time';
+import type { RangeInfo } from '@/lib/api-types';
+import { isLocalDate, previousRange, type LocalDate } from '@/lib/time';
 
 export type RangeQuery = { from?: string | null; to?: string | null };
 

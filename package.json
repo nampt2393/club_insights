@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",
-    "test": "tsx --test 'tests/**/*.test.ts'",
+    "test": "tsx --conditions=react-server --test 'tests/**/*.test.ts'",
     "db:seed": "prisma generate && prisma migrate deploy && tsx prisma/seed/main.ts",
     "postinstall": "prisma generate"
   },
@@ -21,6 +21,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "recharts": "3.10.1",
+    "server-only": "^0.0.1",
     "swr": "2.5.1"
   },
   "devDependencies": {

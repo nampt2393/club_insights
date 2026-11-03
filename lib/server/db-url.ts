@@ -5,7 +5,7 @@ import path from 'node:path';
 // Next.js import.meta.dirname is undefined (or a bundle dir), and cwd is the repo root.
 export function resolveRepoRoot(moduleDir: string | undefined, cwd: string): string {
   if (moduleDir) {
-    const candidate = path.resolve(moduleDir, '..');
+    const candidate = path.resolve(moduleDir, '..', '..'); // lib/server → repo root
     if (existsSync(path.join(candidate, 'prisma', 'schema.prisma'))) return candidate;
   }
   return cwd;

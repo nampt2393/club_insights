@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
-import type { PrismaClient } from '../../app/generated/prisma/client';
-import { getNoShows, getPlayers, getSessions, getSummary, getWeekly, listClubs } from '../../lib/api/service';
+import type { PrismaClient } from '@/generated/prisma/client';
+import { getNoShows, getPlayers, getSessions, getSummary, getWeekly, listClubs } from '@/lib/server/api/service';
 import type {
   NoShowsResponse,
   PlayersResponse,
@@ -27,7 +27,7 @@ test('summary club-001 last 4 weeks', async () => {
   const b = r.body as SummaryResponse;
   assert.ok(!('range' in b)); // the client sent it
   assert.deepEqual(b.previousRange, { from: '2026-08-10', to: '2026-09-06' });
-  // Exactly what the dashboard reads: no definitions (lib/copy.ts has them), no no-show rate.
+  // Exactly what the dashboard reads: no definitions (the client has them), no no-show rate.
   assert.deepEqual(b.metrics, {
     activePlayers: { value: 89, previous: 88 },
     sessionsHeld: { value: 20, previous: 20, cancelled: 0 },

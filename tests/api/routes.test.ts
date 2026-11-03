@@ -3,7 +3,7 @@ import { after, before, test } from 'node:test';
 import { NextRequest } from 'next/server';
 import { setupSeededDb } from '../helpers/seeded-db';
 
-// Route handlers use the lib/db singleton, which reads DATABASE_URL when first imported —
+// Route handlers use the lib/server/db singleton, which reads DATABASE_URL when first imported —
 // so point it at a seeded temp DB before importing them.
 let cleanup: () => Promise<void>;
 let routes: {
@@ -27,7 +27,7 @@ before(async () => {
   };
 });
 after(async () => {
-  const { prisma } = await import('../../lib/db');
+  const { prisma } = await import('@/lib/server/db');
   await prisma.$disconnect();
   await cleanup();
 });

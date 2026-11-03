@@ -1,6 +1,6 @@
 import { connection } from 'next/server';
-import { listClubs } from '../../../lib/api/service';
-import { prisma } from '../../../lib/db';
+import { listClubs } from '@/lib/server/api/service';
+import { prisma } from '@/lib/server/db';
 
 export async function GET() {
   // better-sqlite3 is synchronous, so without this the query would run at build time and the

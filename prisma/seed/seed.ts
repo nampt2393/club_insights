@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { PrismaClient } from '../../app/generated/prisma/client';
+import type { PrismaClient } from '@/generated/prisma/client';
 import { readCsv } from './csv';
 import { toBooking, toClub, toPlayer, toSession } from './map';
 

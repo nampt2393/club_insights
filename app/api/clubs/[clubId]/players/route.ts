@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server';
-import { getPlayers } from '../../../../../lib/api/service';
-import { prisma } from '../../../../../lib/db';
+import { getPlayers } from '@/lib/server/api/service';
+import { prisma } from '@/lib/server/db';
 
-// GET /api/clubs/:clubId/players?from=YYYY-MM-DD&to=YYYY-MM-DD (club-local dates; both optional)
+// GET /api/clubs/:clubId/players?from=YYYY-MM-DD&to=YYYY-MM-DD (club-local dates; both required, else 400)
 export async function GET(req: NextRequest, ctx: RouteContext<'/api/clubs/[clubId]/players'>) {
   const { clubId } = await ctx.params;
   const sp = req.nextUrl.searchParams;

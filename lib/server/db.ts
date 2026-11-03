@@ -1,4 +1,6 @@
-import type { PrismaClient } from '../app/generated/prisma/client';
+import 'server-only';
+
+import type { PrismaClient } from '@/generated/prisma/client';
 import { createPrismaClient } from './prisma';
 
 // One client per process. Next dev reloads modules on every change; caching on globalThis stops

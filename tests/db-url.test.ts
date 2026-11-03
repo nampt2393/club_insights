@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import path from 'node:path';
-import { databaseUrl, resolveRepoRoot } from '../lib/db-url';
+import { databaseUrl, resolveRepoRoot } from '@/lib/server/db-url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 
 test('resolveRepoRoot uses the module dir when it sits in the repo', () =>
-  assert.equal(resolveRepoRoot(path.join(REPO_ROOT, 'lib'), '/elsewhere'), REPO_ROOT));
+  assert.equal(resolveRepoRoot(path.join(REPO_ROOT, 'lib', 'server'), '/elsewhere'), REPO_ROOT));
 
 // Next.js (Turbopack) leaves import.meta.dirname undefined.
 test('resolveRepoRoot falls back to cwd when the module dir is undefined', () =>

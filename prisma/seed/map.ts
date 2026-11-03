@@ -1,5 +1,5 @@
-import { BookingStatus, SessionStatus } from '../../app/generated/prisma/enums';
-import type { Prisma } from '../../app/generated/prisma/client';
+import { BookingStatus, SessionStatus } from '@/generated/prisma/enums';
+import type { Prisma } from '@/generated/prisma/client';
 
 type Row = Record<string, string>;
 

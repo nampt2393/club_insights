@@ -1,7 +1,9 @@
 // Builds each API response: find the club, resolve the range, load its sessions, compute.
 // Route handlers only parse the request and call these.
 
-import type { PrismaClient } from '../../app/generated/prisma/client';
+import 'server-only';
+
+import type { PrismaClient } from '@/generated/prisma/client';
 import type {
   ApiError,
   ClubDto,
@@ -12,8 +14,8 @@ import type {
   SessionsResponse,
   SummaryResponse,
   WeeklyResponse,
-} from '../api-types';
-import { NOW, todayLocal } from '../clock';
+} from '@/lib/api-types';
+import { NOW, todayLocal } from '@/lib/clock';
 import {
   activePlayerRows,
   computeMetrics,
@@ -21,9 +23,9 @@ import {
   sessionRows,
   weeklySeries,
   type MetricValues,
-} from '../metrics/compute';
-import type { SessionRow } from '../metrics/types';
-import { dateOnlyToLocalDate, rangeWindow, type Window } from '../time';
+} from '@/lib/metrics/compute';
+import type { SessionRow } from '@/lib/metrics/types';
+import { dateOnlyToLocalDate, rangeWindow, type Window } from '@/lib/time';
 import { resolveRange, type RangeQuery } from './params';
 
 export type Result<T> = { status: 200; body: T } | { status: 400 | 404; body: ApiError };

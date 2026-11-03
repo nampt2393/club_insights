@@ -4,8 +4,8 @@ import { appendFileSync, cpSync, mkdtempSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { after, before, test } from 'node:test';
-import type { PrismaClient } from '../../app/generated/prisma/client';
-import { createPrismaClient } from '../../lib/prisma';
+import type { PrismaClient } from '@/generated/prisma/client';
+import { createPrismaClient } from '@/lib/server/prisma';
 import { seed } from '../../prisma/seed/seed';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
