@@ -13,7 +13,6 @@ export type SessionRow = {
   id: string;
   title: string;
   startsAt: Date;
-  durationMinutes: number;
   places: number;
   status: 'scheduled' | 'cancelled';
   attendanceRecorded: boolean;

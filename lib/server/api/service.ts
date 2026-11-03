@@ -30,7 +30,13 @@ import { resolveRange, type RangeQuery } from './params';
 
 export type Result<T> = { status: 200; body: T } | { status: 400 | 404; body: ApiError };
 
-type Context = { club: ClubDto; info: RangeInfo; window: Window; prevWindow: Window | null; sessions: SessionRow[] };
+type Context = {
+  club: ClubDto;
+  info: RangeInfo;
+  window: Window;
+  prevWindow: Window | null; // null when not asked for (withPrevious) or there is no previous period
+  sessions: SessionRow[];
+};
 
 const toDto = (c: { id: string; name: string; timeZone: string; createdAt: Date }): ClubDto => ({
   id: c.id,
@@ -44,16 +50,31 @@ export async function listClubs(db: PrismaClient): Promise<ClubsResponse> {
   return { clubs: clubs.map(toDto) };
 }
 
+/**
+ * One club's sessions starting in [start, end), with their bookings. Only active bookings are
+ * loaded: every metric ignores cancelled bookings, and cancelled sessions have none anyway.
+ * Only the columns the metrics and drill-downs read are selected.
+ */
 async function loadSessions(db: PrismaClient, clubId: string, start: Date, end: Date): Promise<SessionRow[]> {
   const rows = await db.session.findMany({
     where: { clubId, startsAt: { gte: start, lt: end } },
-    include: { bookings: { include: { player: { select: { name: true } } } } },
+    select: {
+      id: true,
+      title: true,
+      startsAt: true,
+      places: true,
+      status: true,
+      attendanceRecorded: true,
+      bookings: {
+        where: { status: 'booked' },
+        select: { id: true, playerId: true, status: true, attended: true, player: { select: { name: true } } },
+      },
+    },
   });
   return rows.map((s) => ({
     id: s.id,
     title: s.title,
     startsAt: s.startsAt,
-    durationMinutes: s.durationMinutes,
     places: s.places,
     status: s.status,
     attendanceRecorded: s.attendanceRecorded,
@@ -67,7 +88,16 @@ async function loadSessions(db: PrismaClient, clubId: string, start: Date, end: 
   }));
 }
 
-async function load(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Context | { status: 400 | 404; body: ApiError }> {
+/**
+ * Finds the club, validates the range and loads its sessions. Only the summary compares with the
+ * previous period, so only it asks for withPrevious; the other endpoints load just the chosen range.
+ */
+async function load(
+  db: PrismaClient,
+  clubId: string,
+  q: RangeQuery,
+  { withPrevious = false }: { withPrevious?: boolean } = {},
+): Promise<Context | { status: 400 | 404; body: ApiError }> {
   const row = await db.club.findUnique({ where: { id: clubId } });
   if (!row) return { status: 404, body: { error: `Club not found: ${clubId}` } };
   const club = toDto(row);
@@ -75,7 +105,7 @@ async function load(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Co
   if (!resolved.ok) return { status: 400, body: { error: resolved.error } };
   const { info } = resolved;
   const window = rangeWindow(info.range, club.timeZone);
-  const prevWindow = info.previousRange ? rangeWindow(info.previousRange, club.timeZone) : null;
+  const prevWindow = withPrevious && info.previousRange ? rangeWindow(info.previousRange, club.timeZone) : null;
   const sessions = await loadSessions(db, clubId, prevWindow?.start ?? window.start, window.end);
   return { club, info, window, prevWindow, sessions };
 }
@@ -83,7 +113,7 @@ async function load(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Co
 const isError = (c: Context | { status: number }): c is { status: 400 | 404; body: ApiError } => 'status' in c;
 
 export async function getSummary(db: PrismaClient, clubId: string, q: RangeQuery): Promise<Result<SummaryResponse>> {
-  const ctx = await load(db, clubId, q);
+  const ctx = await load(db, clubId, q, { withPrevious: true });
   if (isError(ctx)) return ctx;
   const cur = computeMetrics(ctx.sessions, ctx.window, NOW);
   const prev: MetricValues | null = ctx.prevWindow ? computeMetrics(ctx.sessions, ctx.prevWindow, NOW) : null;

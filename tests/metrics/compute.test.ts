@@ -28,7 +28,6 @@ const session = (id: string, startsAt: string, over: Partial<SessionRow> = {}): 
   id,
   title: id.toUpperCase(),
   startsAt: new Date(startsAt),
-  durationMinutes: 90,
   places: 12,
   status: 'scheduled',
   attendanceRecorded: false,
