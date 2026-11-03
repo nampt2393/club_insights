@@ -1,10 +1,8 @@
-import { COPY } from '../../lib/copy';
-
 export function EmptyClubBanner() {
   return (
-    <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-950 sm:p-5">
-      <p className="font-semibold">{COPY.newClubBanner.title}</p>
-      <p className="mt-1 text-indigo-900">{COPY.newClubBanner.body}</p>
+    <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-950 sm:p-5">
+      <p className="font-semibold">This club is just getting started: no sessions yet.</p>
+      <p className="mt-1 text-brand-900">Numbers will appear here after your first session. No-show numbers will show once attendance is taken.</p>
     </div>
   );
 }

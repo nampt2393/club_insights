@@ -2,12 +2,11 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import type { SummaryResponse } from '../../lib/api-types';
+import type { MetricKey, SummaryResponse } from '../../lib/api-types';
 import { useClubs, useSummary } from '../../lib/client/api';
 import { pickClub } from '../../lib/client/club';
 import { requestedRange } from '../../lib/client/range';
 import { todayLocal } from '../../lib/clock';
-import { COPY, DEFINITIONS, type MetricKey } from '../../lib/copy';
 import { ComparisonCard } from './ComparisonCard';
 import { presets as buildPresets } from '../../lib/ranges';
 import type { DateRange } from '../../lib/time';
@@ -68,6 +67,7 @@ export function Dashboard() {
         previous={s}
         presets={buildPresets(club.createdAt, today)}
         today={today}
+        rangeDisabled={s ? !s.hasData : false}
         onClubChange={(id) => navigate({ club: id })}
         onRangeChange={(range) => navigate({ club: club.id, range })}
       />
@@ -87,9 +87,9 @@ export function Dashboard() {
       {s && range && (
         <DrillDownDialog
           open={open !== null}
-          title={open ? TITLES[open] : ''}
+          title={open ? METRICS[open].title : ''}
           subtitle={`${s.club.name} · ${formatRange(range)}`}
-          definition={open ? DEFINITIONS[open] : ''}
+          definition={open ? METRICS[open].definition : ''}
           onClose={() => setOpen(null)}
         >
           {open === 'activePlayers' && <PlayersTable clubId={club.id} q={q} />}
@@ -101,7 +101,26 @@ export function Dashboard() {
   );
 }
 
-const TITLES: Record<MetricKey, string> = { activePlayers: 'Active players', sessionsHeld: 'Sessions held', noShows: 'No-shows' };
+// The three numbers: the title and the definition shown on each card and again in its drill-down.
+// A definition must say exactly what lib/metrics/compute.ts counts, so change both together.
+const METRICS: Record<MetricKey, { title: string; definition: string }> = {
+  activePlayers: {
+    title: 'Active players',
+    definition:
+      "Players with at least one booking (not cancelled) at a session held in this period. A booking marked absent doesn't count as playing.",
+  },
+  sessionsHeld: {
+    title: 'Sessions held',
+    definition: "Sessions that took place in this period. Cancelled sessions aren't counted.",
+  },
+  noShows: {
+    title: 'No-shows',
+    definition: 'Bookings marked absent. Only sessions where attendance was taken count; for the others, no-shows are unknown.',
+  },
+};
+
+/** label + definition props for a metric's row. */
+const rowText = (k: MetricKey) => ({ label: METRICS[k].title, definition: METRICS[k].definition });
 
 function Shell({ children }: { children: React.ReactNode }) {
   return <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">{children}</main>;
@@ -113,18 +132,16 @@ function Cards({ s, onOpen }: { s: SummaryResponse; onOpen(k: MetricKey): void }
   const unknown = ns.value === null;
   return (
     <>
-      <MetricRow label="Active players" definition={DEFINITIONS.activePlayers} value={String(ap.value)} onOpen={() => onOpen('activePlayers')} />
+      <MetricRow {...rowText('activePlayers')} value={String(ap.value)} onOpen={() => onOpen('activePlayers')} />
       <MetricRow
-        label="Sessions held"
-        definition={DEFINITIONS.sessionsHeld}
+        {...rowText('sessionsHeld')}
         value={String(sh.value)}
         note={sh.cancelled > 0 && `+ ${sh.cancelled} cancelled, not counted`}
         onOpen={() => onOpen('sessionsHeld')}
       />
       <MetricRow
-        label="No-shows"
-        definition={DEFINITIONS.noShows}
-        value={unknown ? COPY.unknown : String(ns.value)}
+        {...rowText('noShows')}
+        value={unknown ? 'Unknown' : String(ns.value)}
         muted={unknown}
         onOpen={() => onOpen('noShows')}
       />
@@ -138,9 +155,9 @@ function NewClubCards({ s }: { s: SummaryResponse }) {
   const m = s.metrics;
   return (
     <>
-      <MetricRow label="Active players" definition={DEFINITIONS.activePlayers} value={COPY.notYet} muted note="Appears after your first session." />
-      <MetricRow label="Sessions held" definition={DEFINITIONS.sessionsHeld} value={String(m.sessionsHeld.value)} />
-      <MetricRow label="No-shows" definition={DEFINITIONS.noShows} value={COPY.notYet} muted note="Take attendance at your sessions to see this." />
+      <MetricRow {...rowText('activePlayers')} value="Not yet" muted note="Appears after your first session." />
+      <MetricRow {...rowText('sessionsHeld')} value={String(m.sessionsHeld.value)} />
+      <MetricRow {...rowText('noShows')} value="Not yet" muted note="Take attendance at your sessions to see this." />
     </>
   );
 }

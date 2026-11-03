@@ -15,14 +15,14 @@ export function SessionsTable({ clubId, timeZone, q }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="mb-3 text-sm text-slate-600">
-          <strong className="tabular-nums text-slate-900">{data.held.length}</strong> sessions held, newest first.
+        <p className="mb-3 text-sm text-gray-600">
+          <strong className="tabular-nums text-gray-900">{data.held.length}</strong> sessions held, newest first.
         </p>
         {data.held.length > 0 && <Rows items={data.held} timeZone={timeZone} />}
       </div>
       {data.cancelled.length > 0 && (
         <div>
-          <h3 className="mb-2 text-sm font-semibold text-slate-900">Cancelled (not counted)</h3>
+          <h3 className="mb-2 text-sm font-semibold text-gray-900">Cancelled (not counted)</h3>
           <Rows items={data.cancelled} timeZone={timeZone} cancelled />
         </div>
       )}
@@ -43,7 +43,7 @@ function Rows({ items, timeZone, cancelled }: { items: SessionListItem[]; timeZo
       </thead>
       <tbody>
         {items.map((s) => (
-          <tr key={s.id} className={cancelled ? 'text-slate-500' : undefined}>
+          <tr key={s.id} className={cancelled ? 'text-gray-500' : undefined}>
             <td className={`${td} whitespace-nowrap`}>{formatSessionTime(s.startsAt, timeZone)}</td>
             <td className={td}>{s.title}</td>
             <td className={`${td} text-right tabular-nums`}>
@@ -52,7 +52,7 @@ function Rows({ items, timeZone, cancelled }: { items: SessionListItem[]; timeZo
             {!cancelled && (
               <td className={td}>
                 {s.absent === null ? (
-                  <span className="text-slate-500">Not taken</span>
+                  <span className="text-gray-500">Not taken</span>
                 ) : (
                   <span>
                     Taken · <span className={s.absent > 0 ? 'font-medium text-rose-700' : ''}>{s.absent} absent</span>

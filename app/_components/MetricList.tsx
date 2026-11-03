@@ -8,7 +8,7 @@ export function MetricList({ children, dimmed }: { children: ReactNode; dimmed?:
   return (
     <section
       aria-label="Key numbers"
-      className={`divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm transition-opacity ${dimmed ? 'opacity-70' : ''}`}
+      className={`divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-card transition-opacity ${dimmed ? 'opacity-70' : ''}`}
     >
       {children}
     </section>
@@ -26,31 +26,28 @@ type RowProps = {
 
 export function MetricRow({ label, definition, value, muted, note, onOpen }: RowProps) {
   return (
-    <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-6 sm:px-5 sm:py-3">
+    <div className="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:gap-6 sm:px-6 sm:py-5">
       <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-semibold text-slate-900">{label}</h3>
-        <p className="mt-0.5 flex gap-1.5 text-xs leading-relaxed text-slate-500">
+        <h3 className="text-base font-bold text-gray-800">{label}</h3>
+        <p className="mt-0.5 flex gap-1.5 text-xs leading-relaxed text-gray-500">
           <InfoIcon />
           <span>{definition}</span>
         </p>
       </div>
       <div className="flex items-center justify-between gap-4 sm:justify-end">
         <div className="sm:text-right">
-          <p className={`text-3xl font-semibold tabular-nums ${muted ? 'text-slate-400' : 'text-slate-900'}`}>{value}</p>
-          {note && <p className="text-xs text-slate-500">{note}</p>}
+          <p className={`text-4xl font-black tabular-nums ${muted ? 'text-gray-300' : 'text-gray-800'}`}>{value}</p>
+          {note && <p className="text-xs text-gray-500">{note}</p>}
         </div>
-        {onOpen ? (
+        {onOpen && (
           <button
             type="button"
             onClick={onOpen}
             aria-label={`See details: ${label}`}
-            className="shrink-0 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            className="shrink-0 rounded-full border-2 border-transparent bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
           >
             See details →
           </button>
-        ) : (
-          // keeps values aligned with rows that have a button
-          <span className="hidden w-[7.5rem] shrink-0 sm:block" aria-hidden />
         )}
       </div>
     </div>
@@ -59,15 +56,15 @@ export function MetricRow({ label, definition, value, muted, note, onOpen }: Row
 
 export function MetricListSkeleton() {
   return (
-    <div className="animate-pulse divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white" aria-hidden>
+    <div className="animate-pulse divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-card" aria-hidden>
       {[0, 1, 2].map((i) => (
         <div key={i} className="flex items-center gap-6 px-5 py-3">
           <div className="flex-1">
-            <div className="h-3 w-28 rounded bg-slate-200" />
-            <div className="mt-3 h-3 w-2/3 rounded bg-slate-100" />
+            <div className="h-3 w-28 rounded bg-gray-200" />
+            <div className="mt-3 h-3 w-2/3 rounded bg-gray-100" />
           </div>
-          <div className="h-8 w-14 rounded bg-slate-200" />
-          <div className="h-8 w-28 rounded-lg bg-slate-100" />
+          <div className="h-8 w-14 rounded bg-gray-200" />
+          <div className="h-9 w-32 rounded-full bg-gray-100" />
         </div>
       ))}
     </div>

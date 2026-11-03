@@ -1,5 +1,5 @@
 // The three dashboard numbers and the rows behind them. Every function builds on isHeld(), so a
-// number and its drill-down always agree. Definitions shown to hosts live in lib/copy.ts.
+// number and its drill-down always agree. Definitions shown to hosts: METRICS in app/_components/Dashboard.tsx.
 
 import { rangeWindow, toLocalDate, weeksOverlapping, type DateRange, type LocalDate, type Window } from '../time';
 import type { BookingRow, SessionRow } from './types';

@@ -17,7 +17,8 @@ export type PreviousPeriod = {
 };
 export type RangeInfo = { range: DateRange } & PreviousPeriod;
 
-// Definitions aren't in the API: clients print them from lib/copy.ts (README.md has the same words).
+// Definitions aren't in the API: the web prints them from METRICS in app/_components/Dashboard.tsx
+// (README.md has the same words).
 export type Metric = { value: number | null; previous: number | null };
 
 export type SummaryResponse = PreviousPeriod & {
@@ -29,6 +30,7 @@ export type SummaryResponse = PreviousPeriod & {
     noShows: Metric;
   };
 };
+export type MetricKey = keyof SummaryResponse['metrics'];
 
 export type WeeklyResponse = { weeks: WeekPoint[] };
 export type PlayersResponse = { players: ActivePlayerRow[] };

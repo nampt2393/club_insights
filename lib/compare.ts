@@ -1,7 +1,6 @@
 // The "this period vs previous" card: one row per metric, in the order the host asked for.
 
-import type { SummaryResponse } from './api-types';
-import type { MetricKey } from './copy';
+import type { MetricKey, SummaryResponse } from './api-types';
 import { deltaTone, formatDelta } from './format';
 
 type Metrics = SummaryResponse['metrics'];

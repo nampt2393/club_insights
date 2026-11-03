@@ -11,8 +11,8 @@ export function PlayersTable({ clubId, q }: { clubId: string; q: Partial<DateRan
   if (!data || rows.length === 0) return <PanelState loading={isLoading} error={error} empty={!!data} />;
   return (
     <>
-      <p className="mb-3 text-sm text-slate-600">
-        <strong className="tabular-nums text-slate-900">{rows.length}</strong> players, most sessions first.
+      <p className="mb-3 text-sm text-gray-600">
+        <strong className="tabular-nums text-gray-900">{rows.length}</strong> players, most sessions first.
       </p>
       <TableShell>
         <thead>
@@ -25,9 +25,9 @@ export function PlayersTable({ clubId, q }: { clubId: string; q: Partial<DateRan
         <tbody>
           {rows.map((p) => (
             <tr key={p.playerId}>
-              <td className={`${td} font-medium text-slate-900`}>{p.name}</td>
+              <td className={`${td} font-medium text-gray-900`}>{p.name}</td>
               <td className={`${td} text-right tabular-nums`}>{p.sessionsPlayed}</td>
-              <td className={`${td} text-slate-600`}>{formatLocalDate(p.lastPlayed)}</td>
+              <td className={`${td} text-gray-600`}>{formatLocalDate(p.lastPlayed)}</td>
             </tr>
           ))}
         </tbody>
