@@ -1,75 +1,92 @@
 # Club Insights
 
-A dashboard that shows a club host how their club is doing: **active players**, **sessions held**
-and **no-shows** for a date range they choose, compared with the period before it, plus a weekly
-chart and the sessions or players behind every number.
+A dashboard that shows a club host how their club is doing: **active players**, **sessions held** and
+**no-shows** for a date range they pick, compared with the period before it. It also has a weekly chart,
+and you can open any number to see the sessions or players behind it. The screens get all their data
+from a JSON API (Next.js route handlers), which the mobile app can reuse.
 
-The screens get all their data from a JSON API (Next.js route handlers), so the mobile app can show
-the same dashboard from the same endpoints.
+## How to run it
 
-## Run it
+Requires Node 20+ and pnpm.
 
 ```bash
 pnpm install
-pnpm db:seed   # generate the Prisma client, migrate, load data/*.csv into prisma/dev.db
+pnpm db:seed   # generate the Prisma client, run migrations, load data/*.csv into prisma/dev.db
 pnpm dev       # http://localhost:3000
-pnpm test      # unit + API tests (a throwaway seeded DB per test file)
+pnpm test      # unit + API tests (each test file gets its own throwaway seeded DB)
 ```
 
-`db:seed` reloads the CSVs in one transaction, so it's safe to re-run. No `.env` is needed; set
-`DATABASE_URL` to use another SQLite file.
+- `db:seed` reloads the CSVs in one transaction, so you can run it again safely.
+- No `.env` is needed. Set `DATABASE_URL` to use another SQLite file.
+- **"Now" is fixed** at Mon 5 Oct 2026, 09:00 in Ho Chi Minh City (`lib/clock.ts`). Nothing else calls
+  `new Date()` for "now".
 
-**"Now" is fixed** at Monday 5 October 2026, 09:00 in Ho Chi Minh City (`2026-10-05T02:00:00Z`), as
-the brief asks. It lives in `lib/clock.ts`. Sessions that start after it are never counted.
+API (all `GET`; every club endpoint needs `from` and `to` as club-local `YYYY-MM-DD`, or it returns a
+400):
 
-## The numbers
+- `/api/clubs`
+- `/api/clubs/:clubId/summary`
+- `/api/clubs/:clubId/weekly`
+- `/api/clubs/:clubId/players`
+- `/api/clubs/:clubId/sessions`
+- `/api/clubs/:clubId/no-shows`
 
-All three are about **sessions held** in the chosen period: sessions that weren't cancelled, start
-within the period (club-local dates, inclusive), and have already started.
+Response types are in `lib/api-types.ts`.
 
-| Number | Definition (as shown on screen, from `lib/copy.ts`) |
-|---|---|
-| Active players | Players with at least one booking (not cancelled) at a session held in this period. A booking marked absent doesn't count as playing. |
-| Sessions held | Sessions that took place in this period. Cancelled sessions aren't counted. |
-| No-shows | Bookings marked absent. Only sessions where attendance was taken count; for the others, no-shows are unknown. |
+## What I decided where the brief was silent
 
-- Attendance was only taken at some sessions. No-shows count those sessions only; the no-shows
-  details say how many ("attendance taken at 11 of 20 sessions"). If none were recorded, the value is
-  **Unknown** (`null` in the API), never 0.
-- The **previous period** has the same number of days, immediately before the chosen one. If the club
-  didn't exist yet, there is no comparison, and the screen says why.
-- **Weeks** run Monday–Sunday in the club's time zone (`clubs.time_zone`). A week cut by the period's
-  edge is drawn as a partial week.
-- A club that has **never held a session** gets the same page: sessions held is 0, and the other two
-  say "Not yet" with what makes them appear.
+**The numbers.** All three only count *held* sessions: not cancelled, starting inside the range
+(club-local dates, both ends included), and already started before "now".
 
-## API
+- **Active players**: players with at least one non-cancelled booking at a held session.
+  - A player marked absent doesn't count.
+  - A player at a session where attendance wasn't taken *does* count, because they booked and nothing
+    says they didn't come.
+- **Sessions held**: cancelled sessions aren't counted. The screen shows them on a separate line
+  ("+ 2 cancelled, not counted") so they don't silently disappear.
+- **No-shows**: bookings marked absent, at sessions where attendance was taken.
+  - If no session in the range had attendance taken, the value is **Unknown** (`null` in the API),
+    never 0.
+  - The no-shows details say how many sessions had attendance taken ("attendance taken at 11 of 20
+    sessions").
 
-All endpoints are `GET` and return JSON. Every endpoint except `/api/clubs` requires `from` and `to`
-as club-local `YYYY-MM-DD`; responses don't echo them back. The client picks the default range
-itself: the last 4 complete weeks, or club creation → today for a newer club (`defaultRange` in
-`lib/ranges.ts`). Only `summary` says anything more about ranges: `previousRange` (or `null`) and
-`previousClipped`, the comparison period the server worked out. Definitions aren't in the API: they're the table above (`lib/copy.ts`).
+**Dates and comparison.**
 
-| Endpoint | Returns |
-|---|---|
-| `/api/clubs` | `{ clubs: [{ id, name, timeZone, createdAt }] }` |
-| `/api/clubs/:clubId/summary` | `club`, `hasData`, and the three metrics as `{ value, previous }`, plus `sessionsHeld.cancelled` |
-| `/api/clubs/:clubId/weekly` | `weeks: [{ weekStart, weekEnd, partial, activePlayers, sessionsHeld, noShows, recordedSessions }]` (`noShows` is `null` for a week with no attendance taken) |
-| `/api/clubs/:clubId/players` | active players: `{ playerId, name, sessionsPlayed, lastPlayed }` |
-| `/api/clubs/:clubId/sessions` | `held` and `cancelled` sessions with booked/places and absences (`null` = not taken) |
-| `/api/clubs/:clubId/no-shows` | players with ≥1 no-show and the sessions they missed |
+- The **previous period** has the same number of days and ends the day before the chosen range starts.
+  - If it starts before the club was created, it is cut at the creation date and the screen says so.
+  - If the club didn't exist at all in that period, there is no comparison, and the screen says why.
+- **Default range**: the last 4 complete Mon–Sun weeks. For a club younger than that, it runs from the
+  club's creation to today.
+- **Presets**: last 1, 2, 3, 4 or 12 weeks, or all time. You can also pick custom dates, but not dates
+  after "now".
+- **Weeks** run Mon–Sun in the club's time zone (`clubs.time_zone`, never hard-coded +07:00). A week
+  cut by the range edge is drawn and labelled as a partial week.
 
-Errors: `400 { error }` for a bad range (missing, not `YYYY-MM-DD`, only one of the two, `from` after `to`,
-`to` after today) and `404 { error }` for an unknown club. Types for every response are in
-`lib/api-types.ts`.
+**Chart.** The chart shows weekly **active players**, the clearest answer to "are more people playing?",
+with weekly no-shows beside them. A week with no attendance taken has no no-show bar, rather than a bar
+at 0.
 
-## Code map
+**Definitions** are printed next to each number and repeated in its drill-down. The wording lives in
+`METRICS` in `app/_components/Dashboard.tsx`, and the code that computes the numbers is in `lib/metrics/compute.ts`. Both have to change
+together.
 
-- `lib/time.ts`: club-local dates ↔ UTC (plain `Intl`, no date library), weeks, previous period
-- `lib/metrics/compute.ts`: the metric definitions as code; pure functions over loaded rows
-- `lib/api/`: range validation (`params.ts`) and building responses from the DB (`service.ts`)
-- `app/api/clubs/...`: thin route handlers
-- `app/_components/`: the client UI (Tailwind, Recharts, native `<dialog>`), fetching through SWR
-  (`lib/client/api.ts`)
-- `docs/superpowers/specs/`: design documents
+**New club** (no sessions yet). It gets the same page:
+
+- Sessions held shows a real 0.
+- Active players and no-shows say "Not yet", with what will make them appear.
+- A banner explains the club is just getting started.
+
+## What I would do next
+
+- **Paginate the drill-downs when needed.** `players`, `sessions` and `no-shows` return every row in the
+  range. That is fine for one club over nine months. For a big club over "All time", I would page the
+  lists on the server with a cursor, and sort them on the server, so the phone doesn't download
+  thousands of rows to show the first twenty.
+- **Add a cache layer, or an analytics table.** Past data barely changes, so responses can be cached
+  per `(club, from, to)`. At larger scale, keep a weekly summary table per club (active players,
+  sessions held, no-shows, sessions with attendance taken), updated whenever a booking or attendance
+  changes. The dashboard would then read a few small rows instead of scanning sessions and bookings
+  on every request.
+- **Move to a monorepo if the mobile app uses React Native.** Web and mobile could then share the
+  logic that isn't UI, such as the API types, date handling and metric definitions, instead of each
+  keeping its own copy.
